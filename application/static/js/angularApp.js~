@@ -20,11 +20,11 @@
 
     var url = '/datacards';
 
-    angular.module('datacardsApp', [
+   var app = angular.module('datacardsApp', [
         'blueimp.fileupload'
     ])
-    // Temolate
-        .config([
+    // Template
+        app.config([
             '$httpProvider', 'fileUploadProvider',
             function ($httpProvider, fileUploadProvider) {
                 delete $httpProvider.defaults.headers.common['X-Requested-With'];
@@ -37,17 +37,10 @@
                     acceptFileTypes: /(\.|\/)(txt|root)$/i
                 });
             }
-        ])
-	
-	.controller('DeleteDataCardsController',['$scope','$window', function($scope, $window, $http){
-	   $scope.remove_datacard = function() {
-	     var filename = angular.element('#filename');
-	     $window.alert(filename.text());
-	 };
-	}])
-	
+        ]);
+		
         //Template
-        .controller('DemoFileUploadController', [
+        app.controller('DemoFileUploadController', [
             '$scope', '$http', '$filter', '$window',
             function ($scope, $http) {
                 $scope.options = {
@@ -65,9 +58,9 @@
                         }
                     );
             }
-        ])
+        ]);
         // Template
-        .controller('FileDestroyController', [
+        app.controller('FileDestroyController', [
             '$scope', '$http',
             function ($scope, $http) {
                 var file = $scope.file,
@@ -97,12 +90,13 @@
                     };
                 }
             }
-        ])
+        ]);
+	             
         // this writen by Andrius 
-        .controller('ViewDatacardsController', [
+        app.controller('ViewDatacardsController', [
             '$scope', '$http', '$filter', '$window', '$parse',
 	    // This called when User presses Tab#1  
-            function ($scope, $http, $window) {
+            function ($scope, $http) {
                 $scope.refresh = function() {
                     $scope.datacards = [];
                     $scope.total = 0;
@@ -121,12 +115,36 @@
 		    /*
 		     * Asking for the Server to get (...)
 		     * The $http service returns a promise object with a success method
+		     * function(data) used to register 
 		     */
                     $http.get(url+'/'+filename)
                     .success(function(data) {
+		        alert(data.filename + "\n"
+			);
                         show_datacard(data);
                     })
-                };
-            }
+                }; //get_detacard
+                
+		// Feature added by Artiom  
+	        $scope.remove_datacard = function() {   
+	           var file = angular.element('#filename');
+		   if (file.text() === '') return;
+		   var confirmation = confirm("Sure, to delete datacard: " + file.text());
+		   if (confirmation) {
+	               $http.delete(url+'/'+file.text()).error(function(status) { });  
+		       $scope.remove_datacard_table();
+		       $scope.refresh();
+		   } 
+		   else {
+		       return;
+		   }
+	        };//remove_datacard
+	       
+	       $scope.remove_datacard_table = function() {
+	         angular.element('.handsontable').empty();
+	         angular.element('#filename').empty();
+	       }//remove_datacard_table
+	       
+            }//main func
         ]);
-}());
+}())

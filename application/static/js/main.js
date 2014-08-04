@@ -240,9 +240,11 @@ function show_datacard(data){
 
       data - a datacard object returned from the server.
 */
-function parse_datacard(data){
-    $("h2#filename").html(data.filename);
-    for (var abin in data.binsProcessesRates){
+function parse_datacard(data) {
+    $("h2#filename").html(data.filename); //put filename from jsonString to DOM
+    // loop from jsonString get bin-signal, process, and rate, observation 
+    for (var abin in data.binsProcessesRates) {
+       	// Push all bins to bin array
         bin.push(abin);
         observation.push(data.observation[abin]);
         var total = 0;
@@ -252,11 +254,11 @@ function parse_datacard(data){
             }
         }
         var signalNr = 1;
-        for (var aProcess in data.binsProcessesRates[abin]){ 
+        for (var aProcess in data.binsProcessesRates[abin]) {
             bins.push(abin);
             processes.push(aProcess);
-            rate.push(data.binsProcessesRates[abin][aProcess]);
-            if (signalNr>total-1){
+	    rate.push(data.binsProcessesRates[abin][aProcess]);
+            if (signalNr > total - 1){
                 signals.push(0);
             }
             else{
@@ -264,21 +266,30 @@ function parse_datacard(data){
                 signalNr++;
             }
         }
-    }
+    } // for 
+    
     var shapesIDs = [];
-    for (var i = 0; i<data.nuisances.length; i++){
+    /*
+     * loop used push to nuisances array parsed values of main datacard table
+     * and get indexes of shapes to draw 
+     */
+    for (var i = 0; i < data.nuisances.length; i++) {
         var temp = [];
+	// parse to row of Systematics
         temp.push(data.nuisances[i][0]);
         temp.push(data.nuisances[i][2]);
         var index = 0;
-        for (var aBin in data.nuisances[i][4]){
-            for (var aProcess in data.nuisances[i][4][aBin]){
+	// parse deeper to bins
+        for (var aBin in data.nuisances[i][4]) {
+	    // parse to processes values
+            for (var aProcess in data.nuisances[i][4][aBin]) {
                 if (data.nuisances[i][4][aBin][aProcess] == 0)
                     temp.push("-");
                 else if(data.nuisances[i][2] === "shape"|| data.nuisances[i][2] === "shapeN2"){
                     temp.push("<button class='btn btn-default btn-xs fa fa-eye' id='"+aBin+":"+aProcess+":"+data.nuisances[i][0]+"'></button>");
-                    if (shapesIDs.indexOf(index)<0)
+                    if (shapesIDs.indexOf(index) < 0)
                         shapesIDs.push(index);
+		        console.log(shapesIDs);
                 }
                 else if((data.nuisances[i][4][aBin][aProcess]) instanceof Array){
                     temp.push(data.nuisances[i][4][aBin][aProcess][0]+"/"+data.nuisances[i][4][aBin][aProcess][1]);
@@ -289,20 +300,22 @@ function parse_datacard(data){
             }
         }
         nuisances.push(temp);
-    }
+    } // for
+    
     //only get the needed shapes to draw
     var shapesToDraw = [];
-    for(var i = 0;i<shapesIDs.length;i++)
+    for(var i = 0; i < shapesIDs.length; i++)
         if (shapesToDraw[bins[shapesIDs[i]]] === undefined){
             var temp = [];
             temp.push(processes[shapesIDs[i]]);
             shapesToDraw[bins[shapesIDs[i]]] = temp; 
-        }else
+        } else
             shapesToDraw[bins[shapesIDs[i]]].push(processes[shapesIDs[i]]);
+	
     //shapes process/bin/file/histogram-name/histogram-name-for-systematics
     if(Object.getOwnPropertyNames(data.shapeMap).length > 0){
         var shapeBin = sort_obj_keys(data.shapeMap);
-        for (var j = 0;j<shapeBin.length;j++){
+        for (var j = 0;j < shapeBin.length; j++){
             //* - rule applies to all processes, unless a more specific rule exists for it
             if (shapeBin[j] == "*")
                 for (shapeBinDraw in shapesToDraw)
@@ -310,7 +323,7 @@ function parse_datacard(data){
             else
                 datacardShapeMap[shapeBin[j]] = {};
             var shapeProc = sort_obj_keys(data.shapeMap[shapeBin[j]]);
-            for (var k = 0;k<shapeProc.length;k++){
+            for (var k = 0; k < shapeProc.length; k++) {
                 //* - rule applies to all channels, unless a more specific rule exists for it
                 if (shapeBin[j] == "*" && shapeProc[k] == "*")
                     for (shapeBinDraw in shapesToDraw)

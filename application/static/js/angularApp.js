@@ -119,8 +119,6 @@
 		     */
                     $http.get(url+'/'+filename)
                     .success(function(data) {
-		        alert(data.filename + "\n"
-			);
                         show_datacard(data);
                     })
                 }; //get_detacard
