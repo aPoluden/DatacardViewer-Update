@@ -85,6 +85,16 @@ function get_colors(signals){
     return colors;
 }
 
+/*  Artiom
+ *  This function returns rootjsFiles array with speciafied .root files
+ *  for this Datacard
+ */
+ 
+function get_rootjsFiles() {
+  console.log("get_rootjsFiles called");
+  if (rootjsFiles.length === 0 || rootjsFiles === undefined) return;
+  return rootjsFiles;
+}
 /*
    Function: eliminateDuplicates
 
@@ -233,7 +243,6 @@ function show_datacard(data){
 
 /*
    Function: parse_datacard
-
    Parses the data from the server into global variables.  
 
    Parameters:
@@ -289,7 +298,6 @@ function parse_datacard(data) {
                     temp.push("<button class='btn btn-default btn-xs fa fa-eye' id='"+aBin+":"+aProcess+":"+data.nuisances[i][0]+"'></button>");
                     if (shapesIDs.indexOf(index) < 0)
                         shapesIDs.push(index);
-		        console.log(shapesIDs);
                 }
                 else if((data.nuisances[i][4][aBin][aProcess]) instanceof Array){
                     temp.push(data.nuisances[i][4][aBin][aProcess][0]+"/"+data.nuisances[i][4][aBin][aProcess][1]);

@@ -39,8 +39,7 @@ def _handleUpload(files):
 def delete_datacard(filename):
   try:
     os.remove(app.config['UPLOAD_FOLDER'] + filename)
-  except OSError:
-    
+  except OSError: 
     pass
   return null
 

@@ -129,11 +129,19 @@
 		   if (file.text() === '') return;
 		   var confirmation = confirm("Sure, to delete datacard: " + file.text());
 		   if (confirmation) {
+		       var rootjsFiles = get_rootjsFiles();
+		       console.log("Instance of Array");
+		       console.log(rootjsFiles instanceof Array);
+		       console.log("rootjsFiles " + rootjsFiles);
+		       if (rootjsFiles != undefined) {
+		         for (var i = 0; i < rootjsFiles.length; i++) {
+		           $http.delete(url+'/'+rootjsFiles[i]).error(function(status) { });
+		         }
+		       }
 	               $http.delete(url+'/'+file.text()).error(function(status) { });  
 		       $scope.remove_datacard_table();
 		       $scope.refresh();
-		   } 
-		   else {
+		   } else {
 		       return;
 		   }
 	        };//remove_datacard

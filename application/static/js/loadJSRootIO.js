@@ -86,10 +86,10 @@ function readRootFiles(){
       gFile.Delete();
       delete gFile;
    }
-   if (rootjsFiles.length>1)
+   if (rootjsFiles.length > 1)
       alert("Multiple ROOT files no supported");
    else
-      for (var i = 0;i<rootjsFiles.length;i++){
+      for (var i = 0; i < rootjsFiles.length; i++){
          gFile = null;
          gFile = new JSROOTIO.RootFile("datacards/files/"+rootjsFiles[i]);
       }
