@@ -27,6 +27,7 @@ var histogramsWidth = {};
    Initializes global variables for one datacard.
 */
 function init_variables(){
+    console.log("init_variables<");
     $datacardTable = $('#datacard');
     //Parced main datacard variables
     bin = [];
@@ -52,7 +53,7 @@ function init_variables(){
     if(typeof obj_index !== 'undefined'){
         obj_index = 0;
     };
-    
+    console.log("init_variables >");
 }
 
 /*
@@ -86,15 +87,33 @@ function get_colors(signals){
 }
 
 /*  Artiom
- *  This function returns rootjsFiles array with speciafied .root files
- *  for this Datacard
+ * 
+ *  Function: used to get Datacard.root files
+ * 
+ *  Returns: rootjsFiles array with speciafied .root files names
  */
- 
 function get_rootjsFiles() {
-  console.log("get_rootjsFiles called");
   if (rootjsFiles.length === 0 || rootjsFiles === undefined) return;
   return rootjsFiles;
 }
+/* Artiom
+ * 
+ * Function: used to call universal Bootstrap pop up dialog Button
+ * 
+ */
+function bootstrapDialogDynamic(alert, mess) {
+  BootstrapDialog.show({
+            title: alert,
+            message: mess,
+	    buttons: [{
+	          label: "Close",
+                  action: function(dialogItself){
+                              dialogItself.close();
+		  }  
+	    }]
+  });
+}
+
 /*
    Function: eliminateDuplicates
 
@@ -220,8 +239,10 @@ String.prototype.insert = function (index, string) {
    Function: init_JSRootIO
    Initializes JSRootIO from loadJSRootIO.js file.  
 */
-function init_JSRootIO(){
+function init_JSRootIO() {
+    console.log("init_JSRootIO<");
     assertPrerequisitesAndRead();
+    console.log("init_JSRootIO >");
     //TODO mass settings
     //set_settings();
 }
@@ -235,10 +256,12 @@ function init_JSRootIO(){
 
       data - a datacard object returned from the server.
 */
-function show_datacard(data){
+function show_datacard(data) {
+    console.log("show_datacard<");
     init_variables();
     parse_datacard(data);
     generate_datacard();
+    console.log("show_datacard >");
 }
 
 /*
@@ -250,6 +273,7 @@ function show_datacard(data){
       data - a datacard object returned from the server.
 */
 function parse_datacard(data) {
+    console.log("parse_datacard<");
     $("h2#filename").html(data.filename); //put filename from jsonString to DOM
     // loop from jsonString get bin-signal, process, and rate, observation 
     for (var abin in data.binsProcessesRates) {
@@ -294,8 +318,10 @@ function parse_datacard(data) {
             for (var aProcess in data.nuisances[i][4][aBin]) {
                 if (data.nuisances[i][4][aBin][aProcess] == 0)
                     temp.push("-");
-                else if(data.nuisances[i][2] === "shape"|| data.nuisances[i][2] === "shapeN2"){
+                else if(data.nuisances[i][2] === "shape"|| data.nuisances[i][2] === "shapeN2") {
                     temp.push("<button class='btn btn-default btn-xs fa fa-eye' id='"+aBin+":"+aProcess+":"+data.nuisances[i][0]+"'></button>");
+		    console.log("-----------------shapesIDs--------------------------");
+		    console.dir(shapesIDs); 
                     if (shapesIDs.indexOf(index) < 0)
                         shapesIDs.push(index);
                 }
@@ -308,6 +334,9 @@ function parse_datacard(data) {
             }
         }
         nuisances.push(temp);
+	console.log("-------------------------------Nuisances------------------------------------");
+	console.dir(nuisances);
+	
     } // for
     
     //only get the needed shapes to draw
@@ -319,7 +348,6 @@ function parse_datacard(data) {
             shapesToDraw[bins[shapesIDs[i]]] = temp; 
         } else
             shapesToDraw[bins[shapesIDs[i]]].push(processes[shapesIDs[i]]);
-	
     //shapes process/bin/file/histogram-name/histogram-name-for-systematics
     if(Object.getOwnPropertyNames(data.shapeMap).length > 0){
         var shapeBin = sort_obj_keys(data.shapeMap);
@@ -366,6 +394,7 @@ function parse_datacard(data) {
         }
         init_JSRootIO();
     }
+    console.log("parse_datacard >");
 }
 
 /*
@@ -397,15 +426,16 @@ function sort_obj_keys(obj){
    Function: generate_datacard
    Creates a handsontable with needed functionality (searching, grouping, sorting and menus)
 */
-function generate_datacard(){
+function generate_datacard() {
+    console.log("generate_datacard<"); 
     var tableData = [];
     var tableWidths = [];
     var columns = [];
     var groups = [];
     colors = get_colors(signals);
     colorsToShow = colors;
-    for (var i = 0; i<bins.length; i++){
-        tableWidths.push(80);
+    for (var i = 0; i < bins.length; i++){
+        tableWidths.push(50);
         columns.push({readOnly: true});
         colIDforDefault.push({"data": i});
     }
@@ -414,7 +444,7 @@ function generate_datacard(){
     var temp;
     var temp2;
     var temp3;
-    for (var i = 0; i<nuisances.length; i++){
+    for (var i = 0; i < nuisances.length; i++){
         if (nuisances[i][1] == "param")
             continue;
         rowHeaders.push("<div class='pull-left'>"+nuisances[i][0]+": "+nuisances[i][1]+'</div><button class="fa fa-bars pull-right"></button>');
@@ -422,7 +452,7 @@ function generate_datacard(){
         temp = [];
         temp2 = [];
         temp3 = [];
-        for(var j = 2; j<nuisances[i].length; j++){
+        for(var j = 2; j < nuisances[i].length; j++){
             if(nuisances[i][j]!="-"){
                 temp.push({"data": j-2});
                 temp2.push(nuisances[i][j]);
@@ -436,7 +466,7 @@ function generate_datacard(){
     if (typeof($datacardTable.handsontable('getInstance'))!=='undefined')
         $datacardTable.handsontable('getInstance').destroy();
 
-    $datacardTable.handsontable({
+    $datacardTable.handsontable( {
         rowHeaders: rowHeaders,
         colHeaders: bins,
         minCols: bins.length,
@@ -476,6 +506,7 @@ function generate_datacard(){
     change_on_events_proc(true);
     change_on_events_nuisances(true);
     add_search_to_table(tableData);
+    console.log("generate_datacard >");
 }
 
 /*
@@ -540,6 +571,7 @@ function add_cell_dialog_event(button){
       button - jQuery button object.
    
 */
+
 function build_cell_dialog(button){
     var binProc = button.attr('id').split(":");
     var histNr = getHistogramNumber(binProc);
@@ -1113,7 +1145,7 @@ function menu_sort(menuIndex, rowIndex){
             html += "</tr>";
         }
         html += "</tbody></table>";
-
+        // PopUp Sort Window 
         BootstrapDialog.show({
             title: 'Datacard table sort by '+nuisances[rowIndex][0]+": "+nuisances[rowIndex][1]+' nuisance',
             message: function(){

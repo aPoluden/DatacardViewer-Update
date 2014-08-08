@@ -146,4 +146,5 @@ def send_file_partial(path, **kwargs):
 
 @app.route('/datacards/files/<filename>', methods = ['GET','OPTIONS'])
 def get_file(filename):
+    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
     return send_file_partial('application/uploads/'+filename, cache_timeout=0 )

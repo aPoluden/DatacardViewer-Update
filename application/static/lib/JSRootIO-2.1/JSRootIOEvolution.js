@@ -19,7 +19,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
 
 (function(){
 
-   if (typeof JSROOTIO == "object"){
+   if (typeof JSROOTIO == "object") {
       var e1 = new Error("JSROOTIO is already defined");
       e1.source = "JSROOTIO.core.js";
       throw e1;
@@ -1870,7 +1870,9 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       JSROOTIO.RootFile.prototype.GetSize = function(url) {
          // Return maximum file size.
          var xhr = new XMLHttpRequest();
+	 // Open - provides sinchronical connection with server url+...
          xhr.open('HEAD', url+"?"+-1, false);
+	 // Send request starts with null
          xhr.send(null);
          if (xhr.status == 200 || xhr.status == 0) {
             var header = xhr.getResponseHeader("Content-Length");
