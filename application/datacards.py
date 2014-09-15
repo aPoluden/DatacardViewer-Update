@@ -1,9 +1,10 @@
-import os
+import os, shutil
 from datetime import timedelta
 from application import app
 from flask import make_response, send_file, request, Response, url_for, jsonify, send_from_directory, current_app
-from json import JSONEncoder
+from json import JSONEncoder, JSONDecoder
 from werkzeug import secure_filename
+import json
 
 # This is the path to the upload directory
 app.config['UPLOAD_FOLDER'] = 'application/uploads/'
@@ -34,15 +35,36 @@ def _handleUpload(files):
             saved_files_urls.append(url_for('uploaded_file', filename=filename))
             filenames.append("%s" % (file.filename))
     return filenames
-
+# Remove datacard.txt and datacard.root on Button click
 @app.route('/datacards/<filename>', methods=['DELETE'])
 def delete_datacard(filename):
   try:
     os.remove(app.config['UPLOAD_FOLDER'] + filename)
-  except OSError: 
+  except (OSError, NameError, RuntimeError, ValueError):
     pass
-  return null
+    print "Error deleting Datacard file"
+  return "Datacard seccesfully removed"
 
+# Remove multiple selected Datacards
+@app.route('/da', methods=['POST'])
+def delete_datacards(): 
+  try:
+    datacardsDelete = json.loads(request.data)
+    for datacard in datacardsDelete['datacards']:
+      jsonObj = uploaded_file(datacard)
+      wjdata = json.loads(jsonObj)
+      for key, value in (wjdata["shapeMap"].iteritems()):
+	for key1, value1 in (wjdata["shapeMap"][key].iteritems()):
+          try: 
+           os.remove(app.config['UPLOAD_FOLDER'] + value1[0])
+          except (OSError, IOError):
+	   print("File not found")
+      os.remove(app.config['UPLOAD_FOLDER'] + datacard)
+  except:
+    pass
+    return "Error deleting Datacard file stack"
+  return "Datacard stack deleted seccesfully"
+   
 @app.route('/datacards', methods=['POST'])
 def upload_datacards():
     try:
@@ -146,5 +168,4 @@ def send_file_partial(path, **kwargs):
 
 @app.route('/datacards/files/<filename>', methods = ['GET','OPTIONS'])
 def get_file(filename):
-    print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
     return send_file_partial('application/uploads/'+filename, cache_timeout=0 )

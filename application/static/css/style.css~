@@ -5,7 +5,7 @@ body {
 .handsontable col.rowHeader {
     width: 400px;
 } 
-td.pass{
+td.pass {
 	background-color: #D3D3D3; 
 }
 /* More pointers */
@@ -21,9 +21,30 @@ td.pass{
 button.fa-bars {
     text-align: right;
 }
-th.selected{
+th.selected {
 	background-color: #87CEEB;
 }
 
+/* tab color */
+.nav-tabs>li>a {
+  background-color: #FF0000; 
+  border-color: #333333;
+  color:#fff;
+}
 
+/* active tab color */
+.nav-tabs>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus {
+  color: #fff;
+  background-color: #00FF00;
+  border: 1px solid #888888;
+}
 
+/* hover tab color */
+.nav-tabs>li>a:hover {
+  border-color: #000000;
+  background-color: #FFFF00;
+}
+
+.dropdown-menu label {
+   display: inline;
+}

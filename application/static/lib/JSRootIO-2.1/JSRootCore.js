@@ -269,7 +269,7 @@ landaun = function(f, x, i) {
                this['fBinStatErrOpt'] = EBinErrorOpt.kNormal;
                return this.getBinError(bin);
             }
-            // for N==0 return an upper limit at 0.68 or (1-alpha)/2 ?
+            // for N==0 return an upper limit at 0.68 or (1-alpha)/2 ?read
             // decide to return always (1-alpha)/2 upper interval
             //if (n == 0) return ROOT::Math::gamma_quantile_c(alpha,n+1,1);
             return JSROOTMath.gamma_quantile_c( alpha/2, n+1, 1) - c;

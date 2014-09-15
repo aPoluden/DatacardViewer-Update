@@ -21,12 +21,14 @@ var rootjsFiles;
 var settings_mass = 127;//120.7;
 var histograms;
 var histogramsWidth = {};
-
+// re used as regular expression
+var re;
+var massValue;
 /*
    Function: init_variables
    Initializes global variables for one datacard.
 */
-function init_variables(){
+function init_variables() {
     console.log("init_variables<");
     $datacardTable = $('#datacard');
     //Parced main datacard variables
@@ -48,6 +50,8 @@ function init_variables(){
     datacardShapeMap = {};
     rootjsFiles = [];
     histograms = {};
+    massValue = {};
+    re = /MASS/;
     //Histogram plots numbering
     $("#report").empty();
     if(typeof obj_index !== 'undefined'){
@@ -81,7 +85,7 @@ function get_colors(signals){
                         'rgb(170, 142, 147)','rgb(165, 119, 122)', 'rgb(147, 104, 112)'
     ];
     var colors = [];
-    for(var i=0;i<signals.length;i++)
+    for(var i=0; i < signals.length; i++)
         colors.push(backgrounds[signals[i]]);
     return colors;
 }
@@ -108,12 +112,39 @@ function bootstrapDialogDynamic(alert, mess) {
 	    buttons: [{
 	          label: "Close",
                   action: function(dialogItself){
-                              dialogItself.close();
+                         dialogItself.close();
 		  }  
 	    }]
   });
 }
-
+/*
+ * Function: massChecker count all path of datacard that need MASS parameter
+ * 
+ * used call back function
+ * 
+ * 
+ */
+function massChecker(globalData, callback) {
+  console.log("massChecker<");
+  var loopCounter = 0;
+  var $input =  $('<div></div>');
+  for (var bin in globalData) {
+   for (var process in globalData[bin]) {
+     if (re.test(globalData[bin][process][2])) {
+       massValue[process] = "";
+       if (loopCounter === 0) {
+         $input.append(bin +"/" + process + "<span class='artiom' id=" + process +">{MASS}</span>" + globalData[bin][process][3] + "<input type='text' class='form-control' placeholder='$MASS' id=" + process + ">");
+       } else {
+         $input.append(bin +"/" + process + "<span class='artiom' id=" + process +">{MASS}</span>" + globalData[bin][process][3] + "<input type='text' class='form-control' id=" + process + " disabled placeholder='$MASS'>");
+       }
+       $input.append("</br>");
+     }
+     loopCounter++;
+    }
+  }
+  callback($input);
+  console.log("massChecker >");
+}  
 /*
    Function: eliminateDuplicates
 
@@ -241,7 +272,7 @@ String.prototype.insert = function (index, string) {
 */
 function init_JSRootIO() {
     console.log("init_JSRootIO<");
-    assertPrerequisitesAndRead();
+    assertPrerequisitesAndRead(); 
     console.log("init_JSRootIO >");
     //TODO mass settings
     //set_settings();
@@ -260,7 +291,7 @@ function show_datacard(data) {
     console.log("show_datacard<");
     init_variables();
     parse_datacard(data);
-    generate_datacard();
+    // generate_datacards();
     console.log("show_datacard >");
 }
 
@@ -274,8 +305,8 @@ function show_datacard(data) {
 */
 function parse_datacard(data) {
     console.log("parse_datacard<");
-    $("h2#filename").html(data.filename); //put filename from jsonString to DOM
-    // loop from jsonString get bin-signal, process, and rate, observation 
+    var numberOfGraphs;
+    // loop from jsonString get bin-signal, process, and rate, observation
     for (var abin in data.binsProcessesRates) {
        	// Push all bins to bin array
         bin.push(abin);
@@ -307,8 +338,8 @@ function parse_datacard(data) {
      * and get indexes of shapes to draw 
      */
     for (var i = 0; i < data.nuisances.length; i++) {
+	// temp have metrics - lnN/shape - values of signals | or pushed button 
         var temp = [];
-	// parse to row of Systematics
         temp.push(data.nuisances[i][0]);
         temp.push(data.nuisances[i][2]);
         var index = 0;
@@ -316,40 +347,40 @@ function parse_datacard(data) {
         for (var aBin in data.nuisances[i][4]) {
 	    // parse to processes values
             for (var aProcess in data.nuisances[i][4][aBin]) {
-                if (data.nuisances[i][4][aBin][aProcess] == 0)
-                    temp.push("-");
-                else if(data.nuisances[i][2] === "shape"|| data.nuisances[i][2] === "shapeN2") {
-                    temp.push("<button class='btn btn-default btn-xs fa fa-eye' id='"+aBin+":"+aProcess+":"+data.nuisances[i][0]+"'></button>");
-		    console.log("-----------------shapesIDs--------------------------");
-		    console.dir(shapesIDs); 
-                    if (shapesIDs.indexOf(index) < 0)
-                        shapesIDs.push(index);
-                }
-                else if((data.nuisances[i][4][aBin][aProcess]) instanceof Array){
-                    temp.push(data.nuisances[i][4][aBin][aProcess][0]+"/"+data.nuisances[i][4][aBin][aProcess][1]);
-                }
-                else
-                    temp.push(data.nuisances[i][4][aBin][aProcess]);
+                if (data.nuisances[i][4][aBin][aProcess] == 0) {
+                  temp.push("-");
+	      } else if(data.nuisances[i][2] === "shape"|| data.nuisances[i][2] === "shapeN2") {
+                  temp.push("<button class='btn btn-default btn-xs fa fa-eye' id='"+aBin+":"+aProcess+":"+data.nuisances[i][0]+"'></button>"); 
+                  if (shapesIDs.indexOf(index) < 0) {
+                    shapesIDs.push(index);
+		  }
+              } else if((data.nuisances[i][4][aBin][aProcess]) instanceof Array) {
+                  temp.push(data.nuisances[i][4][aBin][aProcess][0]+"/"+data.nuisances[i][4][aBin][aProcess][1]);
+              } else {
+                  temp.push(data.nuisances[i][4][aBin][aProcess]);
+	      }
                 index++;
             }
         }
+        // have array of temp's
         nuisances.push(temp);
-	console.log("-------------------------------Nuisances------------------------------------");
-	console.dir(nuisances);
-	
     } // for
+    console.log("-------------------------------shapesIDs------------------------------------");
+    console.dir(shapesIDs);
+    numberOfGraphs = shapesIDs.length;
     
     //only get the needed shapes to draw
     var shapesToDraw = [];
+           
     for(var i = 0; i < shapesIDs.length; i++)
-        if (shapesToDraw[bins[shapesIDs[i]]] === undefined){
+        if (shapesToDraw[bins[shapesIDs[i]]] === undefined) {
             var temp = [];
             temp.push(processes[shapesIDs[i]]);
             shapesToDraw[bins[shapesIDs[i]]] = temp; 
         } else
             shapesToDraw[bins[shapesIDs[i]]].push(processes[shapesIDs[i]]);
     //shapes process/bin/file/histogram-name/histogram-name-for-systematics
-    if(Object.getOwnPropertyNames(data.shapeMap).length > 0){
+    if(Object.getOwnPropertyNames(data.shapeMap).length > 0) {
         var shapeBin = sort_obj_keys(data.shapeMap);
         for (var j = 0;j < shapeBin.length; j++){
             //* - rule applies to all processes, unless a more specific rule exists for it
@@ -358,7 +389,7 @@ function parse_datacard(data) {
                     datacardShapeMap[shapeBinDraw]={};
             else
                 datacardShapeMap[shapeBin[j]] = {};
-            var shapeProc = sort_obj_keys(data.shapeMap[shapeBin[j]]);
+            var shapeProc = sort_obj_keys(data.shapeMap[shapeBin[j]]);    
             for (var k = 0; k < shapeProc.length; k++) {
                 //* - rule applies to all channels, unless a more specific rule exists for it
                 if (shapeBin[j] == "*" && shapeProc[k] == "*")
@@ -376,23 +407,76 @@ function parse_datacard(data) {
                 else
                     datacardShapeMap[shapeBin[j]][shapeProc[k]] = data.shapeMap[shapeBin[j]][shapeProc[k]].slice(0);
 
-                if (rootjsFiles.indexOf(data.shapeMap[shapeBin[j]][shapeProc[k]][0]) < 0)
+                if (rootjsFiles.indexOf(data.shapeMap[shapeBin[j]][shapeProc[k]][0]) < 0) {
                     rootjsFiles.push(data.shapeMap[shapeBin[j]][shapeProc[k]][0]);
-            }
+		}
+	    }
         }
-        //push nuisances to datacardShapeMap
-        for (var i = 0; i<data.nuisances.length; i++){
-            if(data.nuisances[i][2] === "shape" || data.nuisances[i][2] === "shapeN2"){
-                for (aBin in data.nuisances[i][4]){
+	console.log("--------------------------rootFilesjs------------------------------");
+	console.dir(rootjsFiles);
+        for (var i = 0; i < data.nuisances.length; i++) {
+            if(data.nuisances[i][2] === "shape" || data.nuisances[i][2] === "shapeN2") {
+                for (aBin in data.nuisances[i][4]) {
                     for (aProcess in data.nuisances[i][4][aBin]){
                         if (data.nuisances[i][4][aBin][aProcess] != 0){
-                            datacardShapeMap[aBin][aProcess].push(data.nuisances[i][0]);
+                            datacardShapeMap[aBin][aProcess].push(data.nuisances[i][0]);  
                         }
                     }
                 }
             }
         }
-        init_JSRootIO();
+        console.log("--------------------------datacardShapeMap-------------------------");
+	console.dir(datacardShapeMap);
+	
+       if (numberOfGraphs === 0) {
+	  $("h2#filename").html(data.filename);
+	  generate_datacard();
+	  init_JSRootIO(); 
+	} else {
+	var counter = 0;
+        for (var binn in datacardShapeMap) {
+          for (var processs in datacardShapeMap[binn]) {
+	    counter++;
+            if (re.test(datacardShapeMap[binn][processs][2])) {
+	      massChecker(datacardShapeMap, function(dom) {     
+               BootstrapDialog.show({
+                 title: 'Fill $MASS for the shapeMap',	
+	         message: dom,
+	         closable: false,
+	         closeByBackdrop: false,
+	         closeByKeyboard: false,
+	         id: "mymodal",
+	         buttons: [{
+	         label: 'Submit',
+	         action: function(dialog) {
+	           $('input:text').each(function(index) {
+	             var firstInputValue = dialog.getModalBody().find('input').val();
+		     if ($(this).attr('id') != "srch-term") {
+		     massValue[$(this).attr('id')] = firstInputValue;
+		   }
+	          }); //each
+		   $("h2#filename").html(data.filename);
+		   generate_datacard();
+		   init_JSRootIO();
+	          dialog.close();
+	         } //action
+	        }, {
+                label: 'Close',
+                action: function(dialogRef) {
+                    dialogRef.close();
+                 }
+               }]
+             });
+           });
+           break;
+        } else if (counter === numberOfGraphs | counter > numberOfGraphs) {
+	     $("h2#filename").html(data.filename);
+	     generate_datacard();
+	     init_JSRootIO();
+	}
+     } //for
+    } //for 
+   } //else
     }
     console.log("parse_datacard >");
 }
@@ -441,6 +525,9 @@ function generate_datacard() {
     }
     rowHeaders.push("process");
     tableData.push(processes);
+    
+    rowHeaders.push("rate");
+    tableData.push(rate);
     var temp;
     var temp2;
     var temp3;
@@ -514,6 +601,7 @@ function generate_datacard() {
    Dynamically changes the color of all process cells. 
 */
 var processRenderer = function (instance, td, row, col, prop, value, cellProperties) {
+    console.log("processRender <");
     Handsontable.renderers.TextRenderer.apply(this, arguments);
     $(td).css({
         background: colorsToShow[col]
@@ -525,6 +613,7 @@ var processRenderer = function (instance, td, row, col, prop, value, cellPropert
    Dynamically changes the color of all process cells. 
 */
 var descriptionRenderer = function (instance, td, row, col, prop, value, cellProperties) {
+    console.log("descriptionRender <");
     var escaped = Handsontable.helper.stringify(value);
     escaped = strip_tags(escaped, '<em><b><a>'); 
     td.innerHTML = escaped;
@@ -536,13 +625,14 @@ var descriptionRenderer = function (instance, td, row, col, prop, value, cellPro
    Adds buttons to shape cells. 
 */
 var cellButtonRenderer = function (instance, td, row, col, prop, value, cellProperties) {
-    if((value+"").indexOf("<button")>=0){
-        td.innerHTML = Handsontable.helper.stringify((value+"").insert(value.indexOf('>'), ' style="width:'+$(td).width()+'px"'));
-        add_cell_dialog_event($(td).find('button:first'));
-    }else
+    console.log("cellButtonRender <");
+    if((value+"").indexOf("<button") >= 0) {
+          td.innerHTML = Handsontable.helper.stringify((value+"").insert(value.indexOf('>'), ' style="width:'+$(td).width()+'px"'));
+          add_cell_dialog_event($(td).find('button:first'));
+    } else
         td.innerHTML = value;
-};
 
+};
 /*
    Function: add_cell_dialog_event
    
@@ -553,13 +643,43 @@ var cellButtonRenderer = function (instance, td, row, col, prop, value, cellProp
       button - jQuery button object.
    
 */
-function add_cell_dialog_event(button){
+
+function add_cell_dialog_event(button) {
+   console.log("add_cell_dialog_event(button)<");
     button.off();
-    button.on("click", function(e){
-        build_cell_dialog(button);
+    button.on("click", function(e) {
+        build_one_histogram(button);
+        // build_cell_dialog(button);
         e.stopPropagation();
     });
+   console.log("add_cell_dialog_event(button)<");
 }
+
+var Root = {
+  callback : function(rootName, fileObj) {
+    this[rootName].parsedRootFileObj = fileObj;
+    if (fileObj.fKeys[0]["className"] == "TDirectoryFile" || fileObj.fKeys[0]["className"] == "TDirectory") { 
+      readRootContent(this[rootName].parsedRootFileObj, pathToShape.bin, function(bin, cycle, dir_id) {
+        gFile.ReadDirectory(bin, cycle, function(directory) {
+	  JSROOTPainter.addDirectoryKeys(directory.fKeys, dir_id);
+	});
+      });
+    } else {
+        readHistograms();
+    }
+  } 
+};
+
+var pathToShape = { bin       : "",
+                    process   : "",
+		    nuicances : "",
+		    path      : "",
+		    buildPath : function() {
+                      this.path = getHistogramPath(this.bin, this.process, this.nuicances);
+		      return this.path;
+		    }
+		    
+};
 
 /*
    Function: build_cell_dialog
@@ -571,12 +691,58 @@ function add_cell_dialog_event(button){
       button - jQuery button object.
    
 */
+var test = {};
+function build_one_histogram(button) {
+    /*
+     * Make it more Object oriented
+     * Save decoded .root file
+     */
+    var binProc = button.attr('id').split(":");
+    pathToShape.bin = binProc[0];
+    pathToShape.process = binProc[1];
+    pathToShape.nuicances = binProc[2];
+    var rootFileName = datacardShapeMap[binProc[0]][binProc[1]][0];  
+    try {
+      if (!Root.hasOwnProperty(rootFileName)) {
+        alert("Root");
+        Root[rootFileName] = {};
+        Root[rootFileName][binProc[0]] = {};
+        Root[rootFileName][binProc[0]].path = [];
+	Root[rootFileName].parsedRootFileObj = {};
+        Root[rootFileName][binProc[0]].path.push(pathToShape.buildPath());
+        readRootFiles(rootFileName);
+      } else if (!Root[rootFileName].hasOwnProperty(pathToShape.bin)) {
+          alert("Bin");
+          Root[rootFileName][binProc[0]] = {};
+          Root[rootFileName][binProc[0]].path = [];
+          Root[rootFileName][binProc[0]].path.push(pathToShape.buildPath());
+	  // Supose to be readRootContent
+      } else if (Root[rootFileName][binProc[0]].path.indexOf(pathToShape.buildPath()) === -1) {
+	  alert("path");
+      	  Root[rootFileName][binProc[0]].path.push(pathToShape.buildPath());
+	  
+      } else if (Root.hasOwnProperty(rootFileName) && Root[rootFileName].hasOwnProperty(binProc[0])
+	&& (Root[rootFileName][binProc[0]].path.indexOf(pathToShape.buildPath()) != -1)) {
+	  alert("Histo exists");
+      } else {
+	  throw "Exception: main.js > build_one_histogram";
+      }
+    } catch(err) {
+        alert(err);
+    }
+    // var histNr = getHistogramNumber(binProc);
+    // $("#histogram"+histNr).show().append(html);
+}
 
-function build_cell_dialog(button){
+function build_cell_dialog(button) {
+    console.log("build_cell_dialog<");
     var binProc = button.attr('id').split(":");
     var histNr = getHistogramNumber(binProc);
+    console.log("----------------HistNumber--------------------");
+    console.log(histNr);
     var $hist = $("#histogram"+histNr).clone(true);
     var width;
+    
     var dialog = new BootstrapDialog({ 
         title: function(){
             if ($hist.children().length === 0 )
@@ -587,7 +753,7 @@ function build_cell_dialog(button){
             else
                 return "Bin: "+binProc[0]+", proccess: "+binProc[1]+", nuissance: "+binProc[2]+" histograms";
         },
-        message: function(dialog){
+        message: function(dialog) {
             if ($hist.children().length === 0 ){
                 if (histograms[binProc] === undefined){
                     width = 600;
@@ -598,15 +764,18 @@ function build_cell_dialog(button){
                 }
             }else{
                 if (histograms[binProc] === undefined){
-                    histogramsWidth[binProc] = +$("#histogram"+histNr+" svg").attr("width")+40;
+                    histogramsWidth[binProc] = +$("#histogram"+histNr+" svg").attr("width");
                     width = histogramsWidth[binProc];
                     var html = "<b>Down</b>:<span style='color:red;'>red</span>, ";
                     html+="<b>Nominal</b>: <span style='color:blue;'>blue</span>, ";
                     html+="<b>Up</b>: <span style='color:green;'>green</span>.";
+		    //Here shows the Hist 
                     histograms[binProc] = $("#histogram"+histNr).show().append(html);
+		    console.log("----------------Histograms-------------");
+		    console.dir(histograms);
                     return histograms[binProc];
                 }
-                else{
+                else {
                     width = histogramsWidth[binProc];
                     return histograms[binProc];
                 }
@@ -616,6 +785,7 @@ function build_cell_dialog(button){
     dialog.realize();
     dialog.getModalDialog().css('width', width+'px');
     dialog.open();
+    console.log("build_cell_dialog >"); 
 }
 
 /*
@@ -1120,7 +1290,7 @@ function build_menu(button, rowIndex){
       menuIndex - Sorting menu id to show different table.
 	  rowIndex - Selected nuisance index.
 */
-function menu_sort(menuIndex, rowIndex){
+function menu_sort(menuIndex, rowIndex) {
     switch(menuIndex)
     {
     case 0:

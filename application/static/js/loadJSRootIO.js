@@ -9,30 +9,21 @@ var frame_id = 0;
 var random_id = 0;
 var source_dir = "static/lib/JSRootIO-2.1/";
 var re = /[\/]/;
-var Artiom = {};
 
-function artiomRootParseTest() {
-  console.log("-------------------------Artiom TEST----------------------------------------");
-  console.log("rootjsFiles dir");
-  console.dir(rootjsFiles);
-  console.log("gFile dir");
-  console.dir(gFile);
-}
 
-function loadScript(url, callback){
-   console.log("loadScript<");
+function loadScript(url, callback) {
    // dynamic script loader using callback
    // (as loading scripts may be asynchronous)
    var script = document.createElement("script");
    script.type = "text/javascript";
-   if (script.readyState){ // Internet Explorer specific
+   if (script.readyState) { // Internet Explorer specific
       script.onreadystatechange = function(){
          if (script.readyState == "loaded" || script.readyState == "complete"){
             script.onreadystatechange = null;
             callback();
          }
       };
-   }else{ // Other browsers
+   } else { // Other browsers
       script.onload = function(){
          callback();
       };
@@ -40,14 +31,12 @@ function loadScript(url, callback){
    var rnd = Math.floor(Math.random()*80000);
    script.src = url;
    document.getElementsByTagName("head")[0].appendChild(script);
-   console.log("loadScript >");
 }
 
 function assertPrerequisitesAndRead(){
-   console.log("assert in");
    if (typeof JSROOTIO == "undefined"){
       // if JSROOTIO is not defined, then dynamically load the required scripts
-      loadScript('http://d3js.org/d3.v2.min.js', function(){
+      loadScript('static/lib/d3.v2.min.js', function(){
          loadScript(source_dir+'jquery.mousewheel.js', function(){
             loadScript(source_dir+'dtree.js', function(){
                loadScript(source_dir+'rawinflate.js', function(){
@@ -56,7 +45,6 @@ function assertPrerequisitesAndRead(){
                         loadScript(source_dir+'JSRootD3Painter.js', function(){
                            loadScript(source_dir+'JSRootIOEvolution.js', function(){
                               loadScript('static/js/JSRootIO_Overrides.js', function(){
-                                 readRootFiles();
                               });
                            });
                         });
@@ -66,20 +54,10 @@ function assertPrerequisitesAndRead(){
             });
          });
       });
-   } else {
-      readRootFiles();
    }
-  console.log("assert out");
 }
 
-//After Root files keys read callback
-function userCallback(file){
-   console.log("userCallback<");
-   readRootContent(file.fKeys);
-   console.log("userCallback >");
-}
-
-function readRootFiles() {
+function readRootFiles(rootFile) {
    console.log("readRootFiles<");
    // Check for browser version 
    var navigator_version = navigator.appVersion;
@@ -100,43 +78,16 @@ function readRootFiles() {
       }
    }
    //TODO multiple files
-   //Use Object to link which file is used, for which histogram
-  /* 
-     if (gFile) { 
-       gFile.Delete();
-     delete gFile;
+   //Use Object to link which file is used, for which histogram 
+   if (rootFile.toString().search(re) != -1) {
+      bootstrapDialogDynamic("Warning", "  Current Datacard.txt path to Datacard.root(s) need to be changed. \n "+
+        " Datacard.root(s) locates in same directory as Datacard.txt \n" +
+	"Current path: " + rootFile);
+      return; 
     }
-   */
-   
-   // Artiom implementation of multiple file supprot
-   if (rootjsFiles.length > 1) {
-      bootstrapDialogDynamic("Warning", "Multiple ROOT files no supported yet");
-      return;
-   } else { 
-      for (var i = 0; i < rootjsFiles.length; i++) {
-	if (rootjsFiles[i].toString().search(re) != -1) {
-	  bootstrapDialogDynamic("Warning", "  Current Datacard.txt path to Datacard.root(s) need to be changed. \n "+
-	  " Datacard.root(s) locates in same directory as Datacard.txt \n" +
-	    "Current path: " + rootjsFiles[i]);
-	  return;
-	}
-        gFile = null;
-        gFile = new JSROOTIO.RootFile("datacards/files/"+rootjsFiles[i]);
-     }
-   }
-   console.log("readRootFiles >");
-}
-
-function displayDirectory(directory, cycle, dir_id) {
-   console.log("displayDirectory<");
-   JSROOTPainter.addDirectoryKeys(directory.fKeys, dir_id);
-   console.log("displayDirectory >");
-}
-
-function showDirectory(dir_name, cycle, dir_id) {
-   console.log("showDirectory<");
-   gFile.ReadDirectory(dir_name, cycle, dir_id);
-   console.log("showDirectory >");
+    gFile = null;
+    gFile = new JSROOTIO.RootFile("datacards/files/" + rootFile);
+ console.log("readRootFiles >");
 }
 
 function getHistogramNumber(binProcNuisArr){
@@ -148,7 +99,7 @@ function getHistogramNumber(binProcNuisArr){
    for (aBin in datacardShapeMap){
       for (aProcess in datacardShapeMap[aBin]){
          var tempNuis = datacardShapeMap[aBin][aProcess].slice(3);
-         for (var j = 0; j<tempNuis.length; j++){
+         for (var j = 0; j < tempNuis.length; j++){
             if (aBin == histoBin && aProcess == histoProc && tempNuis[j] == histoNuis){
                return index;
             }
@@ -161,71 +112,64 @@ function getHistogramNumber(binProcNuisArr){
    console.log("getHistogramNumber >");
 }
 
-//to show single object
+// to show single object
 function showObject(obj_name, cycle) {
    console.log("showObject<");
    gFile.ReadObject(obj_name, cycle);
    console.log("showObject >");
 }
 
-//to show three in one array object
-function showThreeObject(obj_name, nuissance, cycle) {
-   console.log("showThreeObject<");
-   gFile.ReadThreeObject(obj_name, nuissance, cycle);
-   console.log("showThreeObject >");
+// Called from ReadStreamerInfo
+function readRootContent(file, bName, callback) {
+  console.log("readRootContent<");
+  var keys = file.fKeys;
+  var dir_id;
+  var cycle
+  jQuery.grep(key_tree.aNodes, function(obj) {
+    cycle = obj.name.substr(obj.name.indexOf(";") + 1, obj.name.length);
+    var dirNameWithCycle = bName + obj.name.substr(obj.name.indexOf(";"), obj.name.length);
+    if (obj.name === dirNameWithCycle) {	  
+      return dir_id = obj.id;
+    }   
+  });
+  callback(bin, cycle, dir_id);
+  console.log("readRootContent >");
+}//readRootContent
+
+// Called by ReadStreamerInfo
+function displayListOfKeys(keys) {
+  // Here passed all keys and creating nodes with them. Here should be passed one key 
+  console.log("displayListOfKeys<");
+    JSROOTPainter.displayListOfKeys(keys);
+  console.log("displayListOfKeys >");
 }
 
-//TODO parse better datacardShapeMap, get separator from map for nuissance
-function readHistograms(){
-   console.log("readHistograms<");
-   for (aBin in datacardShapeMap){
-      for (aProcess in datacardShapeMap[aBin]){
-         var tempNuis = datacardShapeMap[aBin][aProcess].slice(3);
-         for (var j = 0; j<tempNuis.length; j++){
-            showThreeObject(getHistogramPath(aBin, aProcess, tempNuis[j]), '_'+tempNuis[j], 1);
-         }
-      }
-   }
-   console.log("readHistograms >");
-}
-
-function readRootContent(keys){
-   console.log("readRootContent<");
-   if(keys[0]["className"] == "TDirectoryFile" || keys[0]["className"] == "TDirectory")
-      for (aBin in datacardShapeMap){
-         for (var i = 0;i<keys.length;i++){
-            if (aBin == keys[i]["name"]){
-               showDirectory(aBin, 1, i+1);
-            }
-         }
-      }
-   else
-      readHistograms();
-   console.log("readRootContent >");
-}
-
-function getHistogramPath(aBin, aProcess, aNuissance){
+function getHistogramPath(aBin, aProcess, aNuissance) {
    console.log("getHistogramPath<");
    var path = datacardShapeMap[aBin][aProcess][2];
-   console.dir(datacardShapeMap);
    path = path.replace("$CHANNEL", aBin);
-   console.log("aBin: " + aBin);
    path = path.replace("$PROCESS", aProcess);
-   console.log("aProcess " + aProcess); 
-   path = path.replace("$MASS", settings_mass);
-   console.log("mass: " + settings_mass);
+   path = path.replace("$MASS", massValue[aProcess]);
    path = path.replace("$SYSTEMATIC", aNuissance);
-   console.log("aNuissance: " + aNuissance);
-   console.log("Hist PATH:" + path);
+   console.log("-----------------------path to histogram------------------------------");
+   console.log(path);
    return path;
    console.log("getHistogramPath >");
 }
 
-// diplayListOfKeys function
-function displayListOfKeys(keys) {
-   console.log("displayListOfKeys<");
-   JSROOTPainter.displayListOfKeys(keys);
-   console.log("displayListOfKeys >");
+function readHistograms() {
+  // all of them Points here
+  console.log("readHistograms<");
+  for (aBin in datacardShapeMap) {
+    for (aProcess in datacardShapeMap[aBin]) {
+      var tempNuis = datacardShapeMap[aBin][aProcess].slice(3);
+      for (var j = 0; j < tempNuis.length; j++) {
+        // TODO parse better datacardShapeMap, get separator from map for nuissance
+	gFile.ReadThreeObject(getHistogramPath(aBin, aProcess, tempNuis[j]), '_'+tempNuis[j], 1);
+      }
+    }
+  }
+  console.log("readHistograms >");
 }
 
 function showElement(element) {
@@ -298,10 +242,16 @@ function displayObject(obj, cycle, idx) {
    console.log("displayObject >");
 }
 
+/*
+ * Function(): displayThreeObject
+ * called by JSROOTIO.RootFile.prototype.ReadThreeObject
+ * 
+ */
 function displayThreeObject(obj, cycle, idx) {
    console.log("displayThreeObject<");
    var entryInfo = "<div id='histogram" + idx + "'>\n";
    $("#report").append(entryInfo);
+   
    JSROOTPainter.drawThreeObject(obj, idx);
    $("#histogram" + idx).hide();
    console.log("displayThreeObject >");
@@ -310,7 +260,7 @@ function displayThreeObject(obj, cycle, idx) {
 function displayMappedObject(obj_name, list_name, offset) {
    console.log("displayMappedObject<");
    var obj = null;
-   for (var i=0; i<gFile['fObjectMap'].length; ++i) {
+   for (var i = 0; i < gFile['fObjectMap'].length; ++i) {
       if (gFile['fObjectMap'][i]['obj']['_name'] == obj_name) {
          obj = gFile['fObjectMap'][i]['obj'];
          break;

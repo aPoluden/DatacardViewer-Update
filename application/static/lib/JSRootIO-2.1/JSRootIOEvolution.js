@@ -17,14 +17,13 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
     kSTL = 300, kSTLstring = 365,
     kStreamer = 500, kStreamLoop = 501;
 
-(function(){
-
+(function() {
    if (typeof JSROOTIO == "object") {
       var e1 = new Error("JSROOTIO is already defined");
       e1.source = "JSROOTIO.core.js";
       throw e1;
    }
-
+   
    var Z_DEFLATED = 8;
    var HDRSIZE = 9;
    var kByteCountMask = 0x40000000;
@@ -34,14 +33,18 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
    JSROOTIO.version = "2.1 2013/07/03";
 
    JSROOTIO.BIT = function(bits, index) {
+     // console.log("###JSROOTIO.BIT");
       var mask = 1 << index;
+     // console.log("JSROOTIO.BIT###");
       return (bits & mask);
    };
 
    JSROOTIO.ntou2 = function(b, o) {
+    //  console.log("###JSROOTIO.ntou2");
       // convert (read) two bytes of buffer b into a UShort_t
       var n  = ((b.charCodeAt(o)   & 0xff) << 8) >>> 0;
           n +=  (b.charCodeAt(o+1) & 0xff) >>> 0;
+    //  console.log("JSROOTIO.ntou2###");
       return n;
    };
 
@@ -159,6 +162,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
    };
 
    JSROOTIO.ReadArray = function(str, o, array_type) {
+    //  console.log("###JSROOTIO.ReadArray");
       // Read array of floats from the I/O buffer
       var array = {}
       array['array'] = new Array();
@@ -196,10 +200,12 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
          }
       }
       array['off'] = o;
+      //console.log("JSROOTIO.ReadArray###");
       return array;
    };
 
    JSROOTIO.ReadStaticArray = function(str, o) {
+    // console.log("###JSROOTIO.ReadStaticArray");
       // read array of integers from the I/O buffer
       var array = {}
       array['array'] = new Array();
@@ -208,10 +214,12 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
          array['array'][i] = JSROOTIO.ntou4(str, o); o += 4;
       }
       array['off'] = o;
+     // console.log("JSROOTIO.ReadStaticArray###");
       return array;
    };
 
    JSROOTIO.ReadFastArray = function(str, o, n, array_type) {
+    //  console.log("###JSROOTIO.ReadFastArray");
       // read array of n integers from the I/O buffer
       var array = {};
       array['array'] = new Array();
@@ -259,29 +267,36 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
          }
       }
       array['off'] = o;
+    //  console.log("JSROOTIO.ReadFastArray###");
       return array;
    };
 
    JSROOTIO.ReadBasicPointerElem = function(str, o, n, array_type) {
+    //  console.log("###JSROOTIO.ReadBasicPointerElem");
       var isArray = str.charCodeAt(o) & 0xff; o++;
       if (isArray) {
          var array = JSROOTIO.ReadFastArray(str, o, n, array_type);
+	// console.log("JSROOTIO.ReadBasicPointerElem###");
          return array;
       }
       else {
          o--;
          var array = JSROOTIO.ReadFastArray(str, o, n, array_type);
          if (n == 0) array['off']++;
+        // console.log("JSROOTIO.ReadBasicPointerElem###");
          return array;
       }
+     // console.log("JSROOTIO.ReadBasicPointerElem###");
       return null;
    };
 
    JSROOTIO.ReadBasicPointer = function(str, o, len, array_type) {
+     // console.log("###JSROOTIO.ReadBasicPointer###");
       return JSROOTIO.ReadBasicPointerElem(str, o, len, array_type);
    };
 
    JSROOTIO.ReadTString = function(str, off) {
+     // console.log("###JSROOTIO.ReadTString###");
       // stream a TString object from buffer
       var len = str.charCodeAt(off) & 0xff;
       off++;
@@ -298,6 +313,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
 
    JSROOTIO.ReadString = function(str, off, max_len) {
       // stream a string from buffer
+     // console.log("###JSROOTIO.ReadString###");
       max_len = typeof(max_len) != 'undefined' ? max_len : 0;
       var len = 0;
       while ((str.charCodeAt(off + len) & 0xff) != 0) {
@@ -312,6 +328,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
    };
 
    JSROOTIO.ReadObjectAny = function(str, o, previous) {
+    //  console.log("###JSROOTIO.ReadObjectAny###");
       var obj = {};
       var class_name = previous;
       var startpos = o;
@@ -370,6 +387,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
    };
 
    JSROOTIO.ReadTList = function(str, o) {
+     // console.log("###JSROOTIO.ReadTList###");
       // stream all objects in the list from the I/O buffer
       var list = {};
       list['name'] = "";
@@ -413,6 +431,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
    };
 
    JSROOTIO.ReadTListContent = function(str, o, list_name) {
+   //   console.log("###JSROOTIO.ReadTListContent###");
       // read the content of list from the I/O buffer
       var list = {};
       list['name'] = "";
@@ -472,6 +491,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
    };
 
    JSROOTIO.ReadTObjArray = function(str, o) {
+     // console.log("###JSROOTIO.ReadTListContent###");
       var list = {};
       list['name'] = "";
       list['array'] = new Array();
@@ -500,6 +520,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
    };
 
    JSROOTIO.ReadTClonesArray = function(str, o) {
+    //  console.log("###JSROOTIO.ReadTClonesArray###");
       var list = {};
       list['name'] = "";
       list['array'] = new Array();
@@ -542,6 +563,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
    };
 
    JSROOTIO.ReadTCollection = function(str, o) {
+    //  console.log("###JSROOTIO.ReadTCollection###");
       var list = {};
       list['name'] = "";
       list['array'] = new Array();
@@ -562,12 +584,14 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
    };
 
    JSROOTIO.ReadTHashList = function(str, o) {
+     // console.log("###JSROOTIO.ReadTHashList ###");
       var list = JSROOTIO.ReadTList(str, o);
       return list;
    };
 
    JSROOTIO.ReadVersion = function(str, o) {
       // read class version from I/O buffer
+     // console.log("###JSROOTIO.ReadVersion ###");
       var version = {};
       o += 4; // skip byte count
       version['val'] = JSROOTIO.ntou2(str, o); o += 2;
@@ -576,6 +600,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
    };
 
    JSROOTIO.ReadTNamed = function(str, o) {
+   //   console.log("###JSROOTIO.ReadTNamed ###");
       // read a TNamed class definition from I/O buffer
       var named = {};
       var ver = JSROOTIO.ReadVersion(str, o);
@@ -592,6 +617,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
    };
 
    JSROOTIO.ReadTCanvas = function(str, o) {
+      console.log("###JSROOTIO.ReadTCanvas ###");
       var ver = JSROOTIO.ReadVersion(str, o);
       o = ver['off'];
       var obj = {};
@@ -604,6 +630,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
    };
 
    JSROOTIO.GetStreamer = function(clname) {
+      //console.log("###JSROOTIO.GetStreamer ###");
       // return the streamer for the class 'clname', from the list of streamers
       // or generate it from the streamer infos and add it to the list
       var i, j, n_el;
@@ -640,6 +667,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
    };
 
    JSROOTIO.R__unzip_header = function(str, off, noalert) {
+      // console.log("###JSROOTIO.R__unzip_header ###");
       // Reads header envelope, and determines target size.
 
       var header = {};
@@ -663,7 +691,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
    };
 
    JSROOTIO.R__unzip = function(srcsize, str, off, noalert) {
-
+     // console.log("###JSROOTIO.R__unzip ###");
       var obj_buf = {};
       obj_buf['irep'] = 0;
       obj_buf['unzipdata'] = 0;
@@ -713,7 +741,6 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
          if (console[what] !== undefined) console[what](str + '\n');
       }
    };
-
 })();
 
 /// JSROOTIO.core.js ends
@@ -726,11 +753,11 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
 //
 
 (function(){
-
    var version = "1.11 2012/12/04";
 
    // ctor
    JSROOTIO.TStreamer = function(file) {
+   //   console.log("@@@JSROOTIO.TStreamer@@@");
       if (! (this instanceof arguments.callee) ) {
          var error = new Error("you must use new to instantiate this class");
          error.source = "JSROOTIO.TStreamer.ctor";
@@ -742,7 +769,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       this._typename = "JSROOTIO.TStreamer";
 
       JSROOTIO.TStreamer.prototype.ReadBasicType = function(str, o, obj, prop) {
-
+        // console.log("@@@JSROOTIO.TStreamer.prototype.ReadBasicType @@@");
          // read basic types (known from the streamer info)
          switch (this[prop]['type']) {
             case kBase:
@@ -1001,7 +1028,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       };
 
       JSROOTIO.TStreamer.prototype.Stream = function(obj, str, o) {
-
+         console.log("@@@JSROOTIO.TStreamer.prototype.Stream@@@");
          var pval;
          var ver = JSROOTIO.ReadVersion(str, o);
          o = ver['off'];
@@ -1175,7 +1202,6 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
 //
 
 (function(){
-
    if (typeof JSROOTIO != "object") {
       var e1 = new Error("This extension requires JSROOTIO.core.js");
       e1.source = "JSROOTIO.StreamerInfo.js";
@@ -1191,6 +1217,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
 
    // ctor
    JSROOTIO.StreamerInfo = function(buffer, callback) {
+     // console.log("%%%JSROOTIO.StreamerInfo.js%%%");
       if (! (this instanceof arguments.callee) ) {
          var error = new Error("you must use new to instantiate this class");
          error.source = "JSROOTIO.StreamerInfo.ctor";
@@ -1211,6 +1238,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       };
 
       JSROOTIO.StreamerInfo.prototype.ReadClass = function(str, o) {
+	// console.log("%%%JSROOTIO.StreamerInfo.prototype.ReadClass %%%");
          // read class definition from I/O buffer
          var classInfo = {};
          classInfo['name'] = "";
@@ -1259,6 +1287,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       };
 
       JSROOTIO.StreamerInfo.prototype.ReadObjArray = function(str, o) {
+	// console.log("%%%JSROOTIO.StreamerInfo.prototype.ReadObjArray %%%");
          // read a TObjArray class definition from I/O buffer
          // and stream all objects in the array
          var objarray = {};
@@ -1285,6 +1314,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       };
 
       JSROOTIO.StreamerInfo.prototype.ReadElements = function(str, o) {
+	// console.log("%%%JSROOTIO.StreamerInfo.prototype.ReadElements%%%");
          // stream all the elements in the array from the I/O buffer
          var clRef = this.ReadClass(str, o);
          o = clRef['off'];
@@ -1292,6 +1322,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       };
 
       JSROOTIO.StreamerInfo.prototype.ReadStreamerInfo = function(str, o) {
+	// console.log("%%%JSROOTIO.StreamerInfo.prototype.ReadStreamerInfo%%%");
          // stream an object of class TStreamerInfo from the I/O buffer
          var streamerinfo = {};
          var R__v = JSROOTIO.ReadVersion(str, o);
@@ -1311,6 +1342,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       };
 
       JSROOTIO.StreamerInfo.prototype.ReadStreamerElement = function(str, o) {
+	// console.log("%%%JSROOTIO.StreamerInfo.prototype.ReadStreamerElement%%%");
          // stream an object of class TStreamerElement
          var element = {};
          var R__v = JSROOTIO.ReadVersion(str, o);
@@ -1365,6 +1397,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       };
 
       JSROOTIO.StreamerInfo.prototype.ReadStreamerBase = function(str, o) {
+	// console.log("%%%JSROOTIO.StreamerInfo.prototype.ReadStreamerBase %%%");
          // stream an object of class TStreamerBase
          var streamerbase = {};
          var R__v = JSROOTIO.ReadVersion(str, o);
@@ -1379,21 +1412,25 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       };
 
       JSROOTIO.StreamerInfo.prototype.ReadBuffer = function(str, o) {
+	// console.log("%%%JSROOTIO.StreamerInfo.prototype.ReadBuffer %%%");
          // read a streamer element from a buffer
          return this.ReadStreamerElement(str, o);
       };
 
       JSROOTIO.StreamerInfo.prototype.GenericReadAction = function(str, o) {
+	// console.log("%%%JSROOTIO.StreamerInfo.prototype.GenericReadAction %%%");
          // generic read from a buffer
          return this.ReadBuffer(str, o);
       };
 
       JSROOTIO.StreamerInfo.prototype.ReadClassBuffer = function(str, o) {
+	 //console.log("%%%JSROOTIO.StreamerInfo.prototype.ReadClassBuffer%%%");
          // deserialize class information from a buffer
          return this.GenericReadAction(str, o);
       };
 
       JSROOTIO.StreamerInfo.prototype.ReadStreamerBasicType = function(str, o) {
+	// console.log("%%%JSROOTIO.StreamerInfo.prototype.ReadStreamerBasicType%%%");
          // stream an object of class TStreamerBasicType
          var streamerbase = {};
          var R__v = JSROOTIO.ReadVersion(str, o);
@@ -1409,6 +1446,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       };
 
       JSROOTIO.StreamerInfo.prototype.ReadStreamerObject = function(str, o) {
+	// console.log("%%%JSROOTIO.StreamerInfo.prototype.ReadStreamerObject%%%");
          // stream an object of class TStreamerObject
          var streamerbase = {};
          var R__v = JSROOTIO.ReadVersion(str, o);
@@ -1426,6 +1464,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       };
 
       JSROOTIO.StreamerInfo.prototype.ReadStreamerBasicPointer = function(str, o) {
+	// console.log("%%%JSROOTIO.StreamerInfo.prototype.ReadStreamerBasicPointer%%%");
          // stream an object of class TStreamerBasicPointer
          var streamerbase = {};
          var R__v = JSROOTIO.ReadVersion(str, o);
@@ -1446,6 +1485,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       };
 
       JSROOTIO.StreamerInfo.prototype.ReadStreamerSTL = function(str, o) {
+	// console.log("%%%JSROOTIO.StreamerInfo.prototype.ReadStreamerSTL%%%");
          // stream an object of class TStreamerSTL
          var streamerSTL = {};
          var R__v = JSROOTIO.ReadVersion(str, o);
@@ -1461,6 +1501,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       };
 
       JSROOTIO.StreamerInfo.prototype.ReadTList = function(str, o) {
+	// console.log("%%%JSROOTIO.StreamerInfo.prototype.ReadTList%%%");
          // stream all objects in the collection from the I/O buffer
          var list = {};
          list['name'] = "";
@@ -1493,6 +1534,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       };
 
       JSROOTIO.StreamerInfo.prototype.ReadObjString = function(str, o) {
+	// console.log("%%%JSROOTIO.StreamerInfo.prototype.ReadObjString%%%");
          // stream an object of class TObjString
          var version = JSROOTIO.ReadVersion(str, o);
          o = version['off'];
@@ -1502,6 +1544,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       };
 
       JSROOTIO.StreamerInfo.prototype.ReadObject = function(str, o) {
+	// console.log("%%%JSROOTIO.StreamerInfo.prototype.ReadObject %%%");
          // read object from I/O buffer
          var clRef = this.ReadClass(str, o);
          o = clRef['off'];
@@ -1525,6 +1568,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       };
 
       JSROOTIO.StreamerInfo.prototype.ExtractStreamerInfo = function(str) {
+	// console.log("%%%JSROOTIO.StreamerInfo.prototype.ExtractStreamerInfo%%%");
          // extract the list of streamer infos from the buffer (file)
          var o = 0;
          var version = JSROOTIO.ReadVersion(str, o);
@@ -1577,24 +1621,25 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
 //
 
 (function(){
-
    var version = "1.5 2012/02/21";
 
    // ctor
    JSROOTIO.TDirectory = function(file, classname) {
+      console.log("<<<JSROOTIO.TDirectory>>>");
       if (! (this instanceof arguments.callee) ) {
          var error = new Error("you must use new to instantiate this class");
          error.source = "JSROOTIO.TDirectory.ctor";
          throw error;
       }
-
+ 
       this.fFile = file;
       this._classname = classname;
       this._version = version;
       this._typename = "JSROOTIO.TDirectory";
 
-      JSROOTIO.TDirectory.prototype.ReadKeys = function(cycle, dir_id) {
-         //*-*-------------Read directory info
+      JSROOTIO.TDirectory.prototype.ReadKeys = function(cycle, callbackUser) {
+        console.log("<<<JSROOTIO.TDirectory.prototype.ReadKeys>>>"); 
+	//*-*-------------Read directory info
          var nbytes = this.fNbytesName + 22;
          nbytes += 4;  // fDatimeC.Sizeof();
          nbytes += 4;  // fDatimeM.Sizeof();
@@ -1604,6 +1649,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
 
          this.fFile.Seek(this.fSeekDir, this.fFile.ERelativeTo.kBeg);
          var callback1 = function(file, buffer, _dir) {
+	    console.log("callback1 of TDirektory.ReadKeys");
             var str = new String(buffer);
             o = _dir.fNbytesName;
 
@@ -1627,8 +1673,11 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
             var kl = 4; // Skip NBytes;
             var keyversion = JSROOTIO.ntoi2(buffer, kl); kl += 2;
             // Skip ObjLen, DateTime, KeyLen, Cycle, SeekKey, SeekPdir
-            if (keyversion > 1000) kl += 28; // Large files
-            else kl += 20;
+            if (keyversion > 1000) { 
+	      kl += 28; // Large files
+	    } else { 
+	      kl += 20;
+	    }
             var so = JSROOTIO.ReadTString(buffer, kl); kl = so['off'];
             so = JSROOTIO.ReadTString(buffer, kl); kl = so['off'];
             so = JSROOTIO.ReadTString(buffer, kl); kl = so['off'];
@@ -1641,6 +1690,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
             if ( _dir.fSeekKeys >  0) {
                _dir.fFile.Seek(_dir.fSeekKeys, _dir.fFile.ERelativeTo.kBeg);
                var callback2 = function(file, buffer, _dir) {
+		  console.log("callback2 of TDirektory.ReadKeys");
                   //headerkey->ReadKeyBuffer(buffer);
                   var key = _dir.fFile.ReadKey(buffer, 0);
                   var offset = key['keyLen']; // 113
@@ -1658,7 +1708,12 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
                      _dir.fKeys.push(key);
                   }
                   _dir.fFile.fDirectories.push(_dir);
-                  displayDirectory(_dir, cycle, dir_id);
+		  if (callbackUser && typeof(callbackUser) === "function") {
+                     callbackUser(_dir); 
+                  } else {
+		    alert("No callback function defined");  
+		  }
+                  //displayDirectory(_dir, cycle, dir_id);
                   delete buffer;
                   buffer = null;
                };
@@ -1670,7 +1725,8 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
          this.fFile.ReadBuffer(nbytes, callback1, this);
       };
 
-      JSROOTIO.TDirectory.prototype.Stream = function(str, o, cycle, dir_id) {
+      JSROOTIO.TDirectory.prototype.Stream = function(str, o, cycle, callbackUser) {
+	 console.log("<<<JSROOTIO.TDirectory.prototype.Stream>>>");
          var version = JSROOTIO.ntou2(str, o); o += 2;
          var versiondir = version%1000;
          o += 8; // skip fDatimeC and fDatimeM ReadBuffer()
@@ -1686,7 +1742,9 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
             this.fSeekKeys = JSROOTIO.ntou4(str, o); o += 4;
          }
          if (versiondir > 2) o += 18; // skip fUUID.ReadBuffer(buffer);
-         if (this.fSeekKeys) this.ReadKeys(cycle, dir_id);
+         if (this.fSeekKeys) {
+	   this.ReadKeys(cycle, callbackUser); 
+	 }
       };
       this.fKeys = new Array();
       return this;
@@ -1824,7 +1882,6 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
 */
 
 (function(){
-
    var version = "1.8 2013/07/03";
 
    if (typeof JSROOTCore != "object") {
@@ -1847,6 +1904,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
 
    // ctor
    JSROOTIO.RootFile = function(url) {
+      console.log("***JSROOTIO.RootFile");
       if (! (this instanceof arguments.callee) ) {
          var error = new Error("you must use new to instantiate this class");
          error.source = "JSROOTIO.RootFile.ctor";
@@ -1860,14 +1918,30 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       this.fEND = 0;
       this.fURL = url;
       this.fLogMsg = "";
-
       this.ERelativeTo = {
          kBeg : 0,
          kCur : 1,
          kEnd : 2
       };
-
+      
+      this.fDirectories = new Array();
+      this.fKeys = new Array();
+      this.fSeekInfo = 0;
+      this.fNbytesInfo = 0;
+      this.fTagOffset = 0;
+      this.fStreamers = 0;
+      this.fStreamerInfo = new JSROOTIO.StreamerInfo();      
+      this.fStreamers = new Array();
+      this.fObjectMap = new Array();
+      
+    
+      /*
+       * Function: GetSize() 
+       * Parameter: url of Server 
+       * Returns: Integer - current .root header size in bytes
+       */
       JSROOTIO.RootFile.prototype.GetSize = function(url) {
+	 console.log("***JSROOTIO.RootFile.prototype.GetSize");
          // Return maximum file size.
          var xhr = new XMLHttpRequest();
 	 // Open - provides sinchronical connection with server url+...
@@ -1880,12 +1954,20 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
             return parseInt(header);
          }
          xhr = null;
-         return -1;
+	// console.log("JSROOTIO.RootFile.prototype.GetSize***");
+         return -1; 
       }
-
+      /*
+       * Function: ReadBuffer() 
+       * return: file, and content of .root file sector 
+       * 
+       */
       JSROOTIO.RootFile.prototype.ReadBuffer = function(len, callback, object) {
+	 console.log("***JSROOTIO.RootFile.prototype.ReadBuffer");
+	 console.log(len);
          // Read specified byte range from remote file
          var ie9 = function(url, pos, len, file, callbk, obj) {
+	    console.log("ie9");
             // IE9 Fallback
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function() {
@@ -1911,7 +1993,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
             xhr = null;
          }
          var other = function(url, pos, len, file, callbk, obj) {
-            //
+            console.log("other");
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = function() {
                if (this.readyState == 4 && (this.status == 0 || this.status == 200 ||
@@ -1965,9 +2047,11 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
             return ie9(this.fURL, this.fOffset, len, this, callback, object);
          else
             return other(this.fURL, this.fOffset, len, this, callback, object);
+	// console.log("JSROOTIO.RootFile.prototype.ReadBuffer***");
       };
 
       JSROOTIO.RootFile.prototype.Seek = function(offset, pos) {
+	console.log("***JSROOTIO.RootFile.prototype.Seek");
          // Set position from where to start reading.
          switch (pos) {
             case this.ERelativeTo.kBeg:
@@ -1986,9 +2070,11 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
                throw  "Seek : unknown seek option (" + pos + ")";
                break;
          }
+       //  console.log("JSROOTIO.RootFile.prototype.Seek***");
       };
 
       JSROOTIO.RootFile.prototype.Log = function(s, i) {
+	 console.log("***JSROOTIO.RootFile.prototype.Log");
          // format html log information
          if (!i) i = '';
          for (var e in s) {
@@ -2005,9 +2091,16 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
             }
          }
          if (i == '<li>') this.fLogMsg += '</ul>\n';
+        // console.log("JSROOTIO.RootFile.prototype.Log***");
       };
-
+      
+      /*
+       * Function ReadHeader reads the Head of root file
+       * Return header object
+       * 
+       */
       JSROOTIO.RootFile.prototype.ReadHeader = function(str) {
+	 console.log("***JSROOTIO.RootFile.prototype.ReadHeader");
          // read the Root header file informations
          if (str.substring(0, 4) != "root") {
             alert("NOT A ROOT FILE!");
@@ -2030,9 +2123,11 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
          this.fNbytesInfo = header['nbytesInfo'];
          this.Log(header);
          return header;
+	// console.log("JSROOTIO.RootFile.prototype.ReadHeader***");
       };
 
       JSROOTIO.RootFile.prototype.ReadKey = function(str, o) {
+	  console.log("***JSROOTIO.RootFile.prototype.ReadKey");
          // read key from buffer
          var key = {};
          key['offset'] = o;
@@ -2071,9 +2166,10 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
          key['name'] = key['name'].replace(/['"]/g,''); // get rid of quotes
          key['ptr'] = o;
          return key;
-      };
-
+      }      
+      
       JSROOTIO.RootFile.prototype.GetKey = function(keyname, cycle) {
+	 console.log("***JSROOTIO.RootFile.prototype.GetKey");
          // retrieve a key by its name and cycle in the list of keys
          var i, j;
          for (i=0; i<this.fKeys.length; ++i) {
@@ -2088,13 +2184,16 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
             }
          }
          return null;
+	// console.log("JSROOTIO.RootFile.prototype.GetKey***");
       };
 
       JSROOTIO.RootFile.prototype.ReadObjBuffer = function(key, callback) {
+	 console.log("***JSROOTIO.RootFile.prototype.ReadObjBuffer");
          // read and inflate object buffer described by its key
          this.Seek(key['dataoffset'], this.ERelativeTo.kBeg);
          this.fTagOffset = key.keyLen;
          var callback1 = function(file, buffer) {
+	    console.log("callback1 of ReadObjBuffer");
             var noutot = 0;
             var objbuf = 0;
 
@@ -2118,9 +2217,11 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
             callback(file, objbuf);
          };
          this.ReadBuffer(key['nbytes'] - key['keyLen'], callback1);
+	// console.log("JSROOTIO.RootFile.prototype.ReadObjBuffer***");
       };
 
       JSROOTIO.RootFile.prototype.ReadObject = function(obj_name, cycle, node_id) {
+	 console.log("***JSROOTIO.RootFile.prototype.ReadObject");
          // read any object from a root file
          if (findObject(obj_name+cycle)) return;
          var key = this.GetKey(obj_name, cycle);
@@ -2159,18 +2260,23 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
             }
          };
          this.ReadObjBuffer(key, callback);
+	// console.log("JSROOTIO.RootFile.prototype.ReadObject***");
       };
 
       JSROOTIO.RootFile.prototype.ReadStreamerInfo = function() {
-
+         console.log("***JSROOTIO.RootFile.prototype.ReadStreamerInfo");
          if (this.fSeekInfo == 0 || this.fNbytesInfo == 0) return;
          this.Seek(this.fSeekInfo, this.ERelativeTo.kBeg);
+	 
          var callback1 = function(file, buffer) {
+	    console.log("callback1 of ReadStreamerInfo");
             var key = file.ReadKey(buffer, 0);
             this.fTagOffset = key.keyLen;
             if (key == 0) return;
             file.fKeys.push(key);
+	    
             var callback2 = function(file, objbuf) {
+	       console.log("callback2 of ReadStreamerInfo");
                if (objbuf && objbuf['unzipdata']) {
                   file.fStreamerInfo.ExtractStreamerInfo(objbuf['unzipdata']);
                   //JSROOTIO.GenerateStreamers(file);
@@ -2181,35 +2287,39 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
                   if (file.fKeys[i]['className'] == 'TFormula') {
                      file.ReadObject(file.fKeys[i]['name'], file.fKeys[i]['cycle']);
                   }
-               }
-               if (typeof(userCallback) == 'function')
-                  userCallback(file);
+               } 
+	       var rootName = file.fURL.replace('datacards/files/', '');
+	       Root.callback(rootName, file);
             };
             file.ReadObjBuffer(key, callback2);
-            // use the global one from JSRootInterface.js, allowing the user to
-            // implement his own function.
+	    // Here Keys are the same as in ReadKeys.
             displayListOfKeys(file.fKeys);
             delete buffer;
             buffer = null;
-            // the next two lines are for debugging/info purpose
-            //$("#status").append("file header: " + file.fLogMsg  + "<br/>");
-            //JSROOTPainter.displayListOfKeyDetails(file.fKeys, '#status');
          };
          this.ReadBuffer(this.fNbytesInfo, callback1);
+	// console.log("JSROOTIO.RootFile.prototype.ReadStreamerInfo***");
       };
-
+      /*
+       * Maybe Wrong But this function read keys root .tree
+       * 
+       */
       JSROOTIO.RootFile.prototype.ReadKeys = function() {
+	 console.log("***JSROOTIO.RootFile.prototype.ReadKeys");
          // read keys only in the root file
-
+	 // buffer - filecontent
+	 // callback1 gets The parsed header object 
          var callback1 = function(file, buffer) {
+	    console.log("callback1 of ReadKeys");
             var header = file.ReadHeader(buffer);
             if (header == null) {
                delete buffer;
                buffer = null;
                return;
             }
-
-            var callback2 = function(file, str) {
+            // callback2 Parses the LOGICAL RECORD HEADER
+            var callback2 = function(file, str) { 
+	       console.log("callback2 of ReadKeys");
                var o = 4; // skip the "root" file identifier
                file.fVersion = JSROOTIO.ntou4(str, o); o += 4;
                var headerLength = JSROOTIO.ntou4(str, o); o += 4;
@@ -2249,9 +2359,9 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
                file.Seek(file.fBEGIN, file.ERelativeTo.kBeg);
 
                var callback3 = function(file, str) {
+		  console.log("callback3 of ReadKeys");
                   var buffer_keyloc = new String(str);
                   o = file.fNbytesName;
-
                   var version = JSROOTIO.ntou2(str, o); o += 2;
                   var versiondir = version%1000;
                   o += 8; // skip fDatimeC and fDatimeM ReadBuffer()
@@ -2285,8 +2395,8 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
 
                   if ( file.fSeekKeys >  0) {
                      file.Seek(file.fSeekKeys, file.ERelativeTo.kBeg);
-
                      var callback4 = function(file, buffer) {
+		     console.log("callback4 of ReadKeys");
                         //headerkey->ReadKeyBuffer(buffer);
                         var key = file.ReadKey(buffer, 0);
                         var offset = key['keyLen']; // 113
@@ -2296,6 +2406,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
                         var nkeys = JSROOTIO.ntoi4(buffer, offset); offset += 4;
                         for (var i = 0; i < nkeys; i++) {
                            key = file.ReadKey(buffer, offset);
+			   ///we get a key from ReadKey
                            //offset += key['keyLen'];
                            offset = key['ptr'];
                            if (key['className'] != "" && key['name'] != "") {
@@ -2303,7 +2414,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
                            }
                            file.fKeys.push(key);
                         }
-                        file.ReadStreamerInfo();
+			file.ReadStreamerInfo();
                         delete buffer;
                         buffer = null;
                      };
@@ -2321,17 +2432,20 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
             buffer = null;
          };
          this.ReadBuffer(256, callback1);
+	// console.log("JSROOTIO.RootFile.prototype.ReadKeys***");
       };
-
-      JSROOTIO.RootFile.prototype.ReadDirectory = function(dir_name, cycle, dir_id) {
-         // read the directory content from  a root file
+      /*
+       * read the directory content from  a root file
+       */
+      JSROOTIO.RootFile.prototype.ReadDirectory = function(dir_name, cycle, callbackUser) {
+	 console.log("***JSROOTIO.RootFile.prototype.ReadDirectory");
          var key = this.GetKey(dir_name, cycle);
          if (key == null) return null;
-
          var callback = function(file, objbuf) {
+	    console.log("ReadDirectory callback");
             if (objbuf && objbuf['unzipdata']) {
                var directory = new JSROOTIO.TDirectory(file, key['className']);
-               directory.Stream(objbuf['unzipdata'], 0, cycle, dir_id);
+               directory.Stream(objbuf['unzipdata'], 0, cycle, callbackUser);
                delete objbuf['unzipdata'];
                objbuf['unzipdata'] = null;
             }
@@ -2340,6 +2454,7 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       };
 
       JSROOTIO.RootFile.prototype.ReadCollection = function(name, cycle, id) {
+	  console.log("***JSROOTIO.RootFile.prototype.ReadCollection");
          // read the collection content from a root file
          if (obj_list.indexOf(name+cycle) != -1) return;
          var key = this.GetKey(name, cycle);
@@ -2363,10 +2478,12 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
             }
          };
          this.ReadObjBuffer(key, callback);
+	// console.log("JSROOTIO.RootFile.prototype.ReadCollection***");
       };
 
       JSROOTIO.RootFile.prototype.ReadCollectionElement = function(list_name, obj_name, cycle, offset) {
-         // read the collection content from a root file
+        console.log("***JSROOTIO.RootFile.prototype.ReadCollectionElement");
+	// read the collection content from a root file
          if (obj_list.indexOf(obj_name+cycle) != -1) return;
          var key = this.GetKey(list_name, cycle);
          if (key == null) return null;
@@ -2384,18 +2501,22 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
             }
          };
          this.ReadObjBuffer(key, callback);
+	// console.log("JSROOTIO.RootFile.prototype.ReadCollectionElement***");
       };
 
       JSROOTIO.RootFile.prototype.Init = function(fileurl) {
+	 console.log("***JSROOTIO.RootFile.prototype.Init");
          // init members of a Root file from given url
          this.fURL = fileurl;
          this.fLogMsg = "";
          if (fileurl) {
             this.fEND = this.GetSize(fileurl);
          }
+       //  console.log("JSROOTIO.RootFile.prototype.Init***");
       };
 
       JSROOTIO.RootFile.prototype.Delete = function() {
+	 console.log("***JSROOTIO.RootFile.prototype.Delete");
          if (this.fDirectories) this.fDirectories.splice(0, this.fDirectories.length);
          this.fDirectories = null;
          if (this.fKeys) this.fKeys.splice(0, this.fKeys.length);
@@ -2408,9 +2529,11 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
          this.fStreamerInfo = null;
          if (this.fObjectMap) this.fObjectMap.splice(0, this.fObjectMap.length);
          this.fObjectMap = null;
+	// console.log("JSROOTIO.RootFile.prototype.Delete***");
       };
 
       JSROOTIO.RootFile.prototype.GetMappedObject = function(tag) {
+	 console.log("***JSROOTIO.RootFile.prototype.GetMappedObject");
          // find the tag 'clTag' in the list and return the class name
          tag |= 0x01;
          for (var i=0; i<this['fObjectMap'].length; ++i) {
@@ -2418,33 +2541,30 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
                return this['fObjectMap'][i]['obj'];
          }
          return null;
+	// console.log("JSROOTIO.RootFile.prototype.GetMappedObject***");
       };
 
       JSROOTIO.RootFile.prototype.MapObject = function(obj, tag) {
+	 console.log("***JSROOTIO.RootFile.prototype.MapObject");
          if (this['fObjectMap'].indexOf({tag: tag, obj: obj}) == -1)
             this['fObjectMap'].push({tag: tag, obj: obj});
+	// console.log("JSROOTIO.RootFile.prototype.MapObject***");   
       };
 
       JSROOTIO.RootFile.prototype.ClearObjectMap = function() {
+	console.log("***JSROOTIO.RootFile.prototype.ClearObjectMap");
          if (this.fObjectMap) this.fObjectMap.splice(0, this.fObjectMap.length);
+       //  console.log("JSROOTIO.RootFile.prototype.ClearObjectMap***");
       };
 
-      this.fDirectories = new Array();
-      this.fKeys = new Array();
-      this.fSeekInfo = 0;
-      this.fNbytesInfo = 0;
-      this.fTagOffset = 0;
-      this.fStreamers = 0;
-      this.fStreamerInfo = new JSROOTIO.StreamerInfo();
       if (this.fURL) {
-         this.fEND = this.GetSize(this.fURL);
-         this.ReadKeys();
+	this.fEND = this.GetSize(this.fURL);
+        this.ReadKeys();
       }
-      this.fStreamers = new Array();
-      this.fObjectMap = new Array();
       //this.ReadStreamerInfo();
-
+       
       return this;
+      //console.log("JSROOTIO.RootFile***");
    };
 
    JSROOTIO.RootFile.Version = version;

@@ -41,7 +41,7 @@
     <!-- CSS Bootstrap select styles-->
     <link rel="stylesheet" rel="stylesheet" href="../static/lib/bootstrap-select-1.5.4/bootstrap-select.min.css">
     <script src="../static/lib/bootstrap-select-1.5.4/bootstrap-select.min.js"></script>
-    
+    <script src="../static/js/index.js"></script>
     <!-- This need to be attached to CSS-->
     <style>
         /* Hide Angular JS elements before initializing */
@@ -88,6 +88,12 @@
         </div>
     </div>
 </div>
+<style>
+ .dropdown-menu {
+    width: 290px;
+}
+</style>
+
 <!-- Coctail: jQuery links#, Bootstrap nav-tabs angular.ng-click -->
 <div id="tabs" class="container-liquid" data-ng-app="datacardsApp" data-ng-controller="ViewDatacardsController">
     <h1>Datacards viewer</h1>
@@ -95,17 +101,34 @@
         <li class="active"><a href="#tabs-1" ng-click="refresh()">View Datacards</a></li>
         <li><a href="#tabs-2">Upload Datacards</a></li>
         <!--<li><a href="#tabs-3">Tests</a></li>-->
-        
     </ul>
     <!-- MAIN CONTENT-->
     <!-- VIEW DATACARDS -->
     <div id="tabs-1">
         <ul class="nav nav-pills">
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="badge pull-right">{{total}}</span> Datacards<b class="caret"></b></a>
-              <ul class="dropdown-menu">
-                <li ng-repeat="datacard in datacards" ng-click="get_datacard(datacard)"><a href="#">{{datacard}}</a></li>
-              </ul>
+            <div class="btn-group">
+              <a href="#" class="dropdown-toggle btn" data-toggle="dropdown"><span class="badge pull-right">{{total}}</span> Datacards<b class="caret"></b></a>
+              <ul class="dropdown-menu dropdown-menu-form">
+                <li>
+                 <div class = "row">
+                   <div class="col-md-4">
+                     <input type="checkbox" id="checkAll"><span>  Check all</span></input>
+                   </div>
+                   <div class=".col-md-8">
+                     <button ng-click="remove_datacards()"><i class="glyphicon glyphicon-remove-sign"></i><span>Remove checked</span></button>
+                   </div>
+                  </div>
+                 </li>
+                  <li class="divider"></li>   
+                  <li ng-repeat="datacard in datacards">
+                    <div >
+                       <input type="checkbox" value="{{datacard}}" class="dinamyc" id="check"/>
+                       <a ng-click="get_datacard(datacard)" href="#">{{datacard}}</a>
+                    </div>
+                  </li>                
+             </ul>
+             </div>
             </li>
             
             <!-- feature added Artiom-->
@@ -118,11 +141,10 @@
               <i class="glyphicon glyphicon-remove"></i>
               <span>Delete current card</span>
             </button>
-            <button type="button" onclick="artiomRootParseTest()">
-             <span>ArtiomTest</span>
+            
+            <button type="button" id="test">
+              <span>test</span>
             </button>
-           </div>
-           
             <!-- <li><a href="#">Analyse</a></li> -->
         </ul>
         <h2 align="center" id="filename"></h2>
@@ -215,9 +237,9 @@
         </form>
         <br>
     </div>
-    <div id="tabs-3">
-        
-    </div>
+    
+    </div>     
+    <div id="tabs-3">  
     <!-- END OF MAIN CONTENT -->
     <br>
 <!-- The bootstrap-sortable plugin -->
@@ -241,6 +263,5 @@
 <!-- The AngularJS handler application script -->
 <script src="../static/js/angularApp.js"></script>
 <!-- The jQuery helpers application script -->
-<script src="../static/js/index.js"></script>
 </body> 
 </html>

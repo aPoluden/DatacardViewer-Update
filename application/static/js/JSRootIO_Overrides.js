@@ -1,13 +1,14 @@
 // Overrides: JSRootD3Painter.js
 //No GUI needed
 JSROOTPainter.displayListOfKeys = function(keys) {
+      console.log("<<<JSROOTPainter.displayListOfKeys>>>");
       delete key_tree;
       key_tree = new dTree('key_tree');
       key_tree.config.useCookies = false;
       key_tree.add(0, -1, 'File Content');
       var k = 1;
       var tree_link = '';
-      for (var i=0; i<keys.length; ++i) {
+      for (var i = 0; i < keys.length; ++i) {
          if (keys[i]['className'] ==  'TF1') {
             node_title = keys[i]['name'];
          }
@@ -17,53 +18,53 @@ JSROOTPainter.displayListOfKeys = function(keys) {
          else if (keys[i]['className'].match('TCanvas')) {
             node_title = keys[i]['name'];
          }
-         if (keys[i]['name'] != '' && keys[i]['className'] != 'TFile')
-            key_tree.add(k, 0, keys[i]['name']+';'+keys[i]['cycle'], tree_link, keys[i]['name'], '');
-         k++;
+         if (keys[i]['name'] != '' && keys[i]['className'] != 'TFile') {
+           key_tree.add(k, 0, keys[i]['name']+';'+keys[i]['cycle'], tree_link, keys[i]['name'], '');
+	 }
+	 k++;
       }
 };
 
 //No GUI needed
 JSROOTPainter.addDirectoryKeys = function(keys, dir_id) {
-      var pattern_th1 = /TH1/g;
-      var pattern_th2 = /TH2/g;
+      console.log("<<<JSROOTPainter.addDirectoryKeys>>>");
       var tree_link = '';
       var k = key_tree.aNodes.length;
       var dir_name = key_tree.aNodes[dir_id]['title'];
-      for (var i=0; i<keys.length; ++i) {
+      for (var i = 0; i < keys.length; ++i) {
          var disp_name = keys[i]['name'];
          keys[i]['name'] = dir_name + '/' + keys[i]['name'];
          var node_title = keys[i]['className'];
          if (keys[i]['className'].match(/\bTH1/) ||
              keys[i]['className'].match(/\bRooHist/)) {
             node_title = keys[i]['name'];
-         }
-         else if (keys[i]['className'].match(/\bTH2/)) {
+	 
+         } else if (keys[i]['className'].match(/\bTH2/)) {
             node_title = keys[i]['name'];
-         }
-         else if (keys[i]['className'].match(/\bTH3/)) {
+	    
+         } else if (keys[i]['className'].match(/\bTH3/)) {
             node_title = keys[i]['name'];
-         }
-         else if (keys[i]['className'].match(/\bTGraph/) ||
+	    
+         } else if (keys[i]['className'].match(/\bTGraph/) ||
              keys[i]['className'].match(/\RooCurve/)) {
             node_title = keys[i]['name'];
-         }
-         else if (keys[i]['className'] ==  'TProfile') {
+	 
+         } else if (keys[i]['className'] ==  'TProfile') {
             node_title = keys[i]['name'];
-         }
-         else if (keys[i]['name'] == 'StreamerInfo') {
+	    
+         } else if (keys[i]['name'] == 'StreamerInfo') {
             node_title = keys[i]['name'];
-         }
-         else if (keys[i]['className'] == 'TDirectory' || keys[i]['className'] == 'TDirectoryFile') {
+	    
+	 } else if (keys[i]['className'] == 'TDirectory' || keys[i]['className'] == 'TDirectoryFile') {; 
+	   node_title = keys[i]['name'];
+	   
+         } else if (keys[i]['className'] == 'TList' || keys[i]['className'] == 'TObjArray') {
             node_title = keys[i]['name'];
-         }
-         else if (keys[i]['className'] == 'TList' || keys[i]['className'] == 'TObjArray') {
+	    
+         } else if (keys[i]['className'] == 'TTree' || keys[i]['className'] == 'TNtuple') {
             node_title = keys[i]['name'];
-         }
-         else if (keys[i]['className'] == 'TTree' || keys[i]['className'] == 'TNtuple') {
-            node_title = keys[i]['name'];
-         }
-         else if (keys[i]['className'].match('TCanvas')) {
+	    
+         } else if (keys[i]['className'].match('TCanvas')) {
             node_title = keys[i]['name'];
          }
          if (keys[i]['name'] != '' && keys[i]['className'] != 'TFile') {
@@ -73,8 +74,20 @@ JSROOTPainter.addDirectoryKeys = function(keys, dir_id) {
       }
       readHistograms();
    };
+   
+// Overrides: dtree.js
+//No GUI needed
+dTree.prototype.add = function(id, pid, name, url, title, target) {
+   console.log("<<<dTree.prototype.add>>>");
+   this.aNodes[this.aNodes.length] = new Node(id, pid, name, url, title, target);
+};
 
+/*
+ * Paints an object
+ * 
+ */
 JSROOTPainter.drawThreeObject = function(obj, idx) {
+      console.log("<<<JSROOTPainter.drawThreeObject>>>");
       var i, svg = null;
       function draw(init) {
 
@@ -106,12 +119,6 @@ JSROOTPainter.drawThreeObject = function(obj, idx) {
       var debounced_draw = debounce(function() { draw(false); }, 100);
       $(window).resize(debounced_draw);
       draw(true);
-};
-
-// Overrides: dtree.js
-//No GUI needed
-dTree.prototype.add = function(id, pid, name, url, title, target) {
-   this.aNodes[this.aNodes.length] = new Node(id, pid, name, url, title, target);
 };
 
 //Overrides: JSRootIOEvolution.js
@@ -146,7 +153,10 @@ function initStackObject(obj_name){
 //               Down/ Nominal /Up
 var stackColors = [632, 600, 416];
 
+// WTF he is Doing here ?! 
 JSROOTIO.RootFile.prototype.ReadThreeObject = function(obj_name, nuissance, cycle, node_id) {
+      console.log("<<<JSROOTIO.RootFile.prototype.ReadThreeObject>>>");
+      console.log("obj_name " + obj_name + "nuissance " + nuissance + "cycle " + "node_id " + node_id);
       // read any object from a root file
       var key = this.GetKey(obj_name+"Down", cycle);
       var key2 = this.GetKey(obj_name.replace(nuissance,''), cycle);
@@ -229,6 +239,7 @@ JSROOTPainter.drawTitle = function(vis, histo, pad) {
 
 //Always draw the same way-> option.Error = false; 
 JSROOTPainter.decodeOptions = function(opt, histo, pad) {
+      console.log("<<<JSROOTPainter.decodeOptions>>>");
       /* decode string 'opt' and fill the option structure */
       var hdim = 1; // histo['fDimension'];
       if (histo['_typename'].match(/\bJSROOTIO.TH2/)) hdim = 2;
@@ -525,6 +536,7 @@ JSROOTPainter.decodeOptions = function(opt, histo, pad) {
    };
 
 JSROOTPainter.createCanvas = function(element, idx) {
+      console.log("<<<Create canvas>>>");
       var w = element.width(), h = w * 0.6666666;
       var render_to = '#histogram' + idx;
       d3.select(render_to).style("background-color", 'white');

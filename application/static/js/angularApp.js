@@ -112,13 +112,10 @@
                     })
                 };
                 $scope.get_datacard = function(filename) {
-		    /*
-		     * Asking for the Server to get (...)
-		     * The $http service returns a promise object with a success method
-		     * function(data) used to register 
-		     */
                     $http.get(url+'/'+filename)
                     .success(function(data) {
+		        $('.dropdown-menu').parent().removeClass('open');
+			$('input:checkbox').attr('checked', false);
                         show_datacard(data);
                     })
                 }; //get_detacard
@@ -140,8 +137,29 @@
 		       $scope.refresh();
 		   } else {
 		       return;
-		   }
-	        };//remove_datacard
+		   }   
+	        };
+		//remove_datacards
+	        $scope.remove_datacards = function() {	  
+		  if (allchekced.length === 0) {
+		    alert("Select tabeles to delete");
+		    return;
+		  } else {
+		 var confirmation = confirm("Sure, to delete selected datacards : \n" + allchekced + "?");
+		    if (confirmation) {
+		      var jsondata = angular.toJson({"datacards": allchekced}, false);
+		      $http({method: 'POST', data: jsondata, url: '/da'}).
+                         success(function(data, status, headers, config) {
+                              reloadCheckBox();
+			      alert(data);
+			      $scope.refresh();
+                           }).error(function(data, status, headers, config) {
+			      reloadCheckBox();
+                              alert(data);
+                           });
+		    }
+		  }
+	        };//remove_datacards
 	       
 	       $scope.remove_datacard_table = function() {
 	         angular.element('.handsontable').empty();
