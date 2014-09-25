@@ -13,10 +13,9 @@ $(function() {
 /*
  * Controlling dropdown menu and checkeboxes
  */
-$(function() {  
+$(function() {
      $('button#test').on('click', function(e) {
         Histogram.start();
-
      });
      
      $('input#checkAll').on("click", function(e) {
@@ -40,6 +39,18 @@ $(function() {
         if($(this).hasClass('dropdown-menu-form')) {
             e.stopPropagation();
         }
+    });
+    
+    $('li button#applyMass.btn').on('click', function() {
+       var val = $('li input:text').val();
+       checkIfDigit(val);
+    });
+    $('li input:text').keypress(function (e) {
+      var code = e.which;
+      if (code == 13) {
+        var val = $(this).val();
+        checkIfDigit(val);
+      }
     });
 });
 
@@ -76,4 +87,9 @@ function reloadCheckBox() {
    $('.dropdown-menu').parent().removeClass('open');
    $('input:checkbox').attr('checked', false);
    allchekced = [];
+}
+
+function reloadDropDown() {
+  $('.dropdown-menu').parent().removeClass('open');
+  $('li input:text').val("");
 }

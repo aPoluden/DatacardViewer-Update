@@ -58,7 +58,6 @@ function assertPrerequisitesAndRead(){
 }
 
 function readRootFiles(rootFile) {
-   console.log("readRootFiles<");
    // Check for browser version 
    var navigator_version = navigator.appVersion;
    if (typeof ActiveXObject == "function") { // Windows
@@ -87,44 +86,18 @@ function readRootFiles(rootFile) {
     }
     gFile = null;
     gFile = new JSROOTIO.RootFile("datacards/files/" + rootFile);
- console.log("readRootFiles >");
-}
-
-function getHistogramNumber(binProcNuisArr){
-   console.log("getHistogramNumber<");
-   var index = 0;
-   var histoBin = binProcNuisArr[0];
-   var histoProc = binProcNuisArr[1];
-   var histoNuis = binProcNuisArr[2];
-   for (aBin in datacardShapeMap){
-      for (aProcess in datacardShapeMap[aBin]){
-         var tempNuis = datacardShapeMap[aBin][aProcess].slice(3);
-         for (var j = 0; j < tempNuis.length; j++){
-            if (aBin == histoBin && aProcess == histoProc && tempNuis[j] == histoNuis){
-               return index;
-            }
-            else{
-               index++;
-            }
-         }
-      }
-   }
-   console.log("getHistogramNumber >");
 }
 
 // to show single object
 function showObject(obj_name, cycle) {
-   console.log("showObject<");
    gFile.ReadObject(obj_name, cycle);
-   console.log("showObject >");
 }
 
 // Called from ReadStreamerInfo
-function readRootContent(file, bName, callback) {
-  console.log("readRootContent<");
+function getID(file, bName, callback) {
   var keys = file.fKeys;
   var dir_id;
-  var cycle
+  var cycle;
   jQuery.grep(key_tree.aNodes, function(obj) {
     cycle = obj.name.substr(obj.name.indexOf(";") + 1, obj.name.length);
     var dirNameWithCycle = bName + obj.name.substr(obj.name.indexOf(";"), obj.name.length);
@@ -132,48 +105,19 @@ function readRootContent(file, bName, callback) {
       return dir_id = obj.id;
     }   
   });
-  callback(bin, cycle, dir_id);
-  console.log("readRootContent >");
-}//readRootContent
-
-// Called by ReadStreamerInfo
-function displayListOfKeys(keys) {
-  // Here passed all keys and creating nodes with them. Here should be passed one key 
-  console.log("displayListOfKeys<");
-    JSROOTPainter.displayListOfKeys(keys);
-  console.log("displayListOfKeys >");
+  callback(bName, cycle, dir_id);
 }
 
 function getHistogramPath(aBin, aProcess, aNuissance) {
-   console.log("getHistogramPath<");
    var path = datacardShapeMap[aBin][aProcess][2];
    path = path.replace("$CHANNEL", aBin);
    path = path.replace("$PROCESS", aProcess);
    path = path.replace("$MASS", massValue[aProcess]);
    path = path.replace("$SYSTEMATIC", aNuissance);
-   console.log("-----------------------path to histogram------------------------------");
-   console.log(path);
    return path;
-   console.log("getHistogramPath >");
-}
-
-function readHistograms() {
-  // all of them Points here
-  console.log("readHistograms<");
-  for (aBin in datacardShapeMap) {
-    for (aProcess in datacardShapeMap[aBin]) {
-      var tempNuis = datacardShapeMap[aBin][aProcess].slice(3);
-      for (var j = 0; j < tempNuis.length; j++) {
-        // TODO parse better datacardShapeMap, get separator from map for nuissance
-	gFile.ReadThreeObject(getHistogramPath(aBin, aProcess, tempNuis[j]), '_'+tempNuis[j], 1);
-      }
-    }
-  }
-  console.log("readHistograms >");
 }
 
 function showElement(element) {
-   console.log("showElement<");
    if ($(element).next().is(":hidden")) {
       $(element)
          .toggleClass("ui-accordion-header-active ui-state-active ui-state-default ui-corner-bottom")
@@ -181,11 +125,9 @@ function showElement(element) {
          .next().toggleClass("ui-accordion-content-active").slideDown(0);
    }
    $(element)[0].scrollIntoView();
-   console.log("showElement >");
 }
 
 function findObject(obj_name) {
-   console.log("findObject<");
    for (var i in obj_list) {
       if (obj_list[i] == obj_name) {
          var findElement = $('#report').find('#histogram'+i);
@@ -197,31 +139,23 @@ function findObject(obj_name) {
       }
    }
    return false;
-   console.log("findObject >");
 }
 
 function displayCollection(cont, cycle, c_id) {
-   console.log("displayCollection<");
    var url = $("#urlToLoad").val();
    $("#status").html("file: " + url + "<br/>");
    JSROOTPainter.addCollectionContents(cont, '#status', c_id);
-   console.log("displayCollection >");
 }
 
 function showCollection(name, cycle, id) {
-   console.log("showCollection<");
    gFile.ReadCollection(name, cycle, id);
-   console.log("showCollection >");
 }
 
 function readTree(tree_name, cycle, node_id) {
-   console.log("readTree<");
    gFile.ReadObject(tree_name, cycle, node_id);
-   console.log("readTree >");
 }
 
 function displayObject(obj, cycle, idx) {
-   console.log("displayObject<");
    if (!obj['_typename'].match(/\bJSROOTIO.TH1/) &&
        !obj['_typename'].match(/\bJSROOTIO.TH2/) &&
        !obj['_typename'].match(/\bJSROOTIO.TH3/) &&
@@ -236,29 +170,20 @@ function displayObject(obj, cycle, idx) {
    }
    var entryInfo = "<div id='histogram" + idx + "'>\n";
    $("#report").append(entryInfo);
-   // draw ?
    JSROOTPainter.drawObject(obj, idx);
-   $("#histogram" + idx).hide();
-   console.log("displayObject >");
+   Root.showHistogram(obj.fTitle, idx);
 }
 
-/*
- * Function(): displayThreeObject
- * called by JSROOTIO.RootFile.prototype.ReadThreeObject
- * 
- */
 function displayThreeObject(obj, cycle, idx) {
    console.log("displayThreeObject<");
    var entryInfo = "<div id='histogram" + idx + "'>\n";
    $("#report").append(entryInfo);
-   
-   JSROOTPainter.drawThreeObject(obj, idx);
-   $("#histogram" + idx).hide();
+   JSROOTPainter.drawThreeObject(obj, idx); 
+   Root.showHistogram(obj.fTitle, idx);
    console.log("displayThreeObject >");
 }
 
 function displayMappedObject(obj_name, list_name, offset) {
-   console.log("displayMappedObject<");
    var obj = null;
    for (var i = 0; i < gFile['fObjectMap'].length; ++i) {
       if (gFile['fObjectMap'][i]['obj']['_name'] == obj_name) {
@@ -286,9 +211,7 @@ function displayMappedObject(obj_name, list_name, offset) {
    var entryInfo = "<h5 id=\""+uid+"\"><a> " + obj['fName'] + "</a>&nbsp; </h5>\n";
    entryInfo += "<div id='histogram" + obj_index + "'>\n";
    $("#report").append(entryInfo);
-   //draw ?
    JSROOTPainter.drawObject(obj, obj_index);
    obj_list.push(obj['fName']);
    obj_index++;
-   console.log("displayMappedObject >");
 };

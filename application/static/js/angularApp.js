@@ -11,7 +11,6 @@
    ViewDatacardsController. Controllers uses $html interface to connect with 
    Python. Detailed Connections will be provided soon.
    See Also:
-
       https://github.com/blueimp/jQuery-File-Upload
 */
 
@@ -38,8 +37,6 @@
                 });
             }
         ]);
-		
-        //Template
         app.controller('DemoFileUploadController', [
             '$scope', '$http', '$filter', '$window',
             function ($scope, $http) {
@@ -59,7 +56,6 @@
                     );
             }
         ]);
-        // Template
         app.controller('FileDestroyController', [
             '$scope', '$http',
             function ($scope, $http) {
@@ -91,11 +87,8 @@
                 }
             }
         ]);
-	             
-        // this writen by Andrius 
         app.controller('ViewDatacardsController', [
-            '$scope', '$http', '$filter', '$window', '$parse',
-	    // This called when User presses Tab#1  
+            '$scope', '$http', '$filter', '$window', '$parse', 
             function ($scope, $http) {
                 $scope.refresh = function() {
                     $scope.datacards = [];
@@ -120,7 +113,6 @@
                     })
                 }; //get_detacard
                 
-		// Feature added by Artiom  
 	        $scope.remove_datacard = function() {   
 	           var file = angular.element('#filename');
 		   if (file.text() === '') return;
@@ -151,10 +143,12 @@
 		      $http({method: 'POST', data: jsondata, url: '/da'}).
                          success(function(data, status, headers, config) {
                               reloadCheckBox();
+			      reloadDropDown();
 			      alert(data);
 			      $scope.refresh();
                            }).error(function(data, status, headers, config) {
 			      reloadCheckBox();
+			      reloadDropDown();
                               alert(data);
                            });
 		    }
@@ -164,6 +158,7 @@
 	       $scope.remove_datacard_table = function() {
 	         angular.element('.handsontable').empty();
 	         angular.element('#filename').empty();
+		 reloadDropDown();
 	       }//remove_datacard_table
 	       
             }//main func

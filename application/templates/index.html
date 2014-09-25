@@ -11,6 +11,9 @@
     <title>GUI for the exploration of Higgs measurements</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <script src="../static/lib/vtip-min.js" type="text/javascript"></script> 
+    <link href="../static/css/vtip.css" rel="stylesheet" type="text/css"></link>
+ 
     <!-- Main bootstrap and jQuery plugins-->
     <script src="../static/lib/jquery-1.11.0.min.js"></script>
     <link rel="stylesheet" href="../static/lib/bootstrap-3.1.1-dist/css/bootstrap.min.css">
@@ -48,8 +51,7 @@
         .ng-cloak {
             display: none;
         }
-    </style>
-    
+    </style>    
     <!-- The handsontable plugin -->
     <script src="../static/lib/jquery-handsontable-0.10.5/dist/jquery.handsontable.full.js"></script>
     <link rel="stylesheet" media="screen" href="../static/lib/jquery-handsontable-0.10.5/dist/jquery.handsontable.full.css">
@@ -88,11 +90,6 @@
         </div>
     </div>
 </div>
-<style>
- .dropdown-menu {
-    width: 290px;
-}
-</style>
 
 <!-- Coctail: jQuery links#, Bootstrap nav-tabs angular.ng-click -->
 <div id="tabs" class="container-liquid" data-ng-app="datacardsApp" data-ng-controller="ViewDatacardsController">
@@ -107,45 +104,58 @@
     <div id="tabs-1">
         <ul class="nav nav-pills">
             <li class="dropdown">
-            <div class="btn-group">
-              <a href="#" class="dropdown-toggle btn" data-toggle="dropdown"><span class="badge pull-right">{{total}}</span> Datacards<b class="caret"></b></a>
+              <button class="dropdown-toggle btn" data-toggle="dropdown"> 
+                 <span class="badge pull-right">{{total}}</span> Datacards<b class="caret"></b>
+              </button>
               <ul class="dropdown-menu dropdown-menu-form">
                 <li>
-                 <div class = "row">
-                   <div class="col-md-4">
-                     <input type="checkbox" id="checkAll"><span>  Check all</span></input>
-                   </div>
-                   <div class=".col-md-8">
-                     <button ng-click="remove_datacards()"><i class="glyphicon glyphicon-remove-sign"></i><span>Remove checked</span></button>
-                   </div>
-                  </div>
+                <div class="input-group input-group-sm">
+                   <span class="input-group-addon"><input type="checkbox" id="checkAll"><span>Check all</span>
+                   <button class="btn btn-default" title="Remove checked Datacards from server" ng-click="remove_datacards()">Remove checked</button>
+                   </span>
+                 </div>
                  </li>
                   <li class="divider"></li>   
                   <li ng-repeat="datacard in datacards">
-                    <div >
-                       <input type="checkbox" value="{{datacard}}" class="dinamyc" id="check"/>
-                       <a ng-click="get_datacard(datacard)" href="#">{{datacard}}</a>
-                    </div>
+                      <div class="checkbox">
+                         <label>
+                           <input type="checkbox" value="{{datacard}}" class="dinamyc" id="check">
+                           <a ng-click="get_datacard(datacard)" href="#">{{datacard}}</a>
+                         </label>
+                      </div>
                   </li>                
              </ul>
-             </div>
             </li>
-            
-            <!-- feature added Artiom-->
-           <div> 
-            <button type="button" class="btn btn-primary delete" ng-click="remove_datacard_table()">
-              <i class="glyphicon glyphicon-remove"></i>
-                   <span>Remove table</span>
-            </button>
-            <button type="button" class="btn btn-primary delete" ng-click="remove_datacard()">
-              <i class="glyphicon glyphicon-remove"></i>
-              <span>Delete current card</span>
-            </button>
-            
-            <button type="button" id="test">
-              <span>test</span>
-            </button>
-            <!-- <li><a href="#">Analyse</a></li> -->
+            <li class="dropdown">
+               <button class="dropdown-toggle btn" data-toggle="dropdown"> 
+                  Menu<b class="caret"></b>
+               </button>
+               <ul class="dropdown-menu dropdown-menu-form" role="menu" aria-labelledby="dropdownMenu">
+                 <li>
+                     <button type="button" title="Cleans showed table" id="second" class="btn btn-default" ng-click="remove_datacard_table()">
+                        Remove table
+                        <i class="glyphicon glyphicon-remove"></i>
+                      </button>
+                 </li>
+                 <li>
+                     <button type="button" title="Removes from server Datacard.txt and belonging to it Datacard.root" id="second"  class="btn btn-default" ng-click="remove_datacard()">
+                        Delete current card
+                        <i class="glyphicon glyphicon-remove"></i>
+                     </button>
+                 </li>
+                 <li>
+                     <div class="input-group">
+                        <span class="input-group-btn">
+                            <button id="applyMass" class="btn btn-default" type="button">Apply</button>
+                        </span>
+                        <input title="Change $MASS parameter to all histograms" id="smallMass" type="text" class="form-control" placeholder="Change $MASS">
+                     </div>
+                  </li>
+                  <li class="dropdown-submenu" id="top">
+                       <a href="#" tabindex='-1'>data_obs</a>
+                 </li>
+               </ul>
+            </li>
         </ul>
         <h2 align="center" id="filename"></h2>
         <div id="settings"></div>

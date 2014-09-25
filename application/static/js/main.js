@@ -24,12 +24,15 @@ var histogramsWidth = {};
 // re used as regular expression
 var re;
 var massValue;
+var html = "<b>Down</b>:<span style='color:red;'>red</span>, ";
+    html+="<b>Nominal</b>: <span style='color:blue;'>blue</span>, ";
+    html+="<b>Up</b>: <span style='color:green;'>green</span>.";
+var data_observ = {};
 /*
    Function: init_variables
    Initializes global variables for one datacard.
 */
 function init_variables() {
-    console.log("init_variables<");
     $datacardTable = $('#datacard');
     //Parced main datacard variables
     bin = [];
@@ -57,7 +60,6 @@ function init_variables() {
     if(typeof obj_index !== 'undefined'){
         obj_index = 0;
     };
-    console.log("init_variables >");
 }
 
 /*
@@ -125,7 +127,6 @@ function bootstrapDialogDynamic(alert, mess) {
  * 
  */
 function massChecker(globalData, callback) {
-  console.log("massChecker<");
   var loopCounter = 0;
   var $input =  $('<div></div>');
   for (var bin in globalData) {
@@ -143,7 +144,6 @@ function massChecker(globalData, callback) {
     }
   }
   callback($input);
-  console.log("massChecker >");
 }  
 /*
    Function: eliminateDuplicates
@@ -271,11 +271,7 @@ String.prototype.insert = function (index, string) {
    Initializes JSRootIO from loadJSRootIO.js file.  
 */
 function init_JSRootIO() {
-    console.log("init_JSRootIO<");
     assertPrerequisitesAndRead(); 
-    console.log("init_JSRootIO >");
-    //TODO mass settings
-    //set_settings();
 }
 
 /*
@@ -288,11 +284,10 @@ function init_JSRootIO() {
       data - a datacard object returned from the server.
 */
 function show_datacard(data) {
-    console.log("show_datacard<");
     init_variables();
     parse_datacard(data);
-    // generate_datacards();
-    console.log("show_datacard >");
+    $("h2#filename").html(data.filename);
+    generate_datacard();
 }
 
 /*
@@ -304,11 +299,8 @@ function show_datacard(data) {
       data - a datacard object returned from the server.
 */
 function parse_datacard(data) {
-    console.log("parse_datacard<");
     var numberOfGraphs;
-    // loop from jsonString get bin-signal, process, and rate, observation
     for (var abin in data.binsProcessesRates) {
-       	// Push all bins to bin array
         bin.push(abin);
         observation.push(data.observation[abin]);
         var total = 0;
@@ -331,26 +323,18 @@ function parse_datacard(data) {
             }
         }
     } // for 
-    
     var shapesIDs = [];
-    /*
-     * loop used push to nuisances array parsed values of main datacard table
-     * and get indexes of shapes to draw 
-     */
     for (var i = 0; i < data.nuisances.length; i++) {
-	// temp have metrics - lnN/shape - values of signals | or pushed button 
         var temp = [];
         temp.push(data.nuisances[i][0]);
         temp.push(data.nuisances[i][2]);
         var index = 0;
-	// parse deeper to bins
         for (var aBin in data.nuisances[i][4]) {
-	    // parse to processes values
             for (var aProcess in data.nuisances[i][4][aBin]) {
                 if (data.nuisances[i][4][aBin][aProcess] == 0) {
                   temp.push("-");
 	      } else if(data.nuisances[i][2] === "shape"|| data.nuisances[i][2] === "shapeN2") {
-                  temp.push("<button class='btn btn-default btn-xs fa fa-eye' id='"+aBin+":"+aProcess+":"+data.nuisances[i][0]+"'></button>"); 
+                  temp.push("<button class='btn btn-default btn-xs fa fa-eye' title='"+aBin+":"+aProcess+":"+data.nuisances[i][0]+"' id='"+aBin+":"+aProcess+":"+data.nuisances[i][0]+"'></button>"); 
                   if (shapesIDs.indexOf(index) < 0) {
                     shapesIDs.push(index);
 		  }
@@ -362,11 +346,8 @@ function parse_datacard(data) {
                 index++;
             }
         }
-        // have array of temp's
         nuisances.push(temp);
-    } // for
-    console.log("-------------------------------shapesIDs------------------------------------");
-    console.dir(shapesIDs);
+    }
     numberOfGraphs = shapesIDs.length;
     
     //only get the needed shapes to draw
@@ -379,10 +360,9 @@ function parse_datacard(data) {
             shapesToDraw[bins[shapesIDs[i]]] = temp; 
         } else
             shapesToDraw[bins[shapesIDs[i]]].push(processes[shapesIDs[i]]);
-    //shapes process/bin/file/histogram-name/histogram-name-for-systematics
     if(Object.getOwnPropertyNames(data.shapeMap).length > 0) {
         var shapeBin = sort_obj_keys(data.shapeMap);
-        for (var j = 0;j < shapeBin.length; j++){
+        for (var j = 0;j < shapeBin.length; j++) {
             //* - rule applies to all processes, unless a more specific rule exists for it
             if (shapeBin[j] == "*")
                 for (shapeBinDraw in shapesToDraw)
@@ -402,9 +382,9 @@ function parse_datacard(data) {
                 else if(shapeBin[j] == "*") 
                     for (shapeBinDraw in shapesToDraw)
                         datacardShapeMap[shapeBinDraw][shapeProc[k]] = data.shapeMap[shapeBin[j]][shapeProc[k]].slice(0);
-                else if (shapeProc[k] == "data_obs")
+                else if (shapeProc[k] == "data_obs") 
                     continue;
-                else
+	        else
                     datacardShapeMap[shapeBin[j]][shapeProc[k]] = data.shapeMap[shapeBin[j]][shapeProc[k]].slice(0);
 
                 if (rootjsFiles.indexOf(data.shapeMap[shapeBin[j]][shapeProc[k]][0]) < 0) {
@@ -412,25 +392,19 @@ function parse_datacard(data) {
 		}
 	    }
         }
-	console.log("--------------------------rootFilesjs------------------------------");
-	console.dir(rootjsFiles);
         for (var i = 0; i < data.nuisances.length; i++) {
-            if(data.nuisances[i][2] === "shape" || data.nuisances[i][2] === "shapeN2") {
-                for (aBin in data.nuisances[i][4]) {
-                    for (aProcess in data.nuisances[i][4][aBin]){
-                        if (data.nuisances[i][4][aBin][aProcess] != 0){
-                            datacardShapeMap[aBin][aProcess].push(data.nuisances[i][0]);  
-                        }
-                    }
+          if (data.nuisances[i][2] === "shape" || data.nuisances[i][2] === "shapeN2") {
+            for (aBin in data.nuisances[i][4]) {
+              for (aProcess in data.nuisances[i][4][aBin]){
+                if (data.nuisances[i][4][aBin][aProcess] != 0) {
+                  datacardShapeMap[aBin][aProcess].push(data.nuisances[i][0]);  
                 }
+              }
             }
-        }
-        console.log("--------------------------datacardShapeMap-------------------------");
-	console.dir(datacardShapeMap);
-	
+         }
+       }
+       
        if (numberOfGraphs === 0) {
-	  $("h2#filename").html(data.filename);
-	  generate_datacard();
 	  init_JSRootIO(); 
 	} else {
 	var counter = 0;
@@ -449,16 +423,13 @@ function parse_datacard(data) {
 	         buttons: [{
 	         label: 'Submit',
 	         action: function(dialog) {
-	           $('input:text').each(function(index) {
-	             var firstInputValue = dialog.getModalBody().find('input').val();
-		     if ($(this).attr('id') != "srch-term") {
-		     massValue[$(this).attr('id')] = firstInputValue;
+		   var mass = dialog.getModalBody().find('input').val();
+		   bul = checkIfDigit(mass);
+                   if (!bul) {
+		     return;
 		   }
-	          }); //each
-		   $("h2#filename").html(data.filename);
-		   generate_datacard();
 		   init_JSRootIO();
-	          dialog.close();
+	           dialog.close();
 	         } //action
 	        }, {
                 label: 'Close',
@@ -470,17 +441,46 @@ function parse_datacard(data) {
            });
            break;
         } else if (counter === numberOfGraphs | counter > numberOfGraphs) {
-	     $("h2#filename").html(data.filename);
-	     generate_datacard();
-	     init_JSRootIO();
+	    init_JSRootIO();
 	}
-     } //for
-    } //for 
-   } //else
+     }
+    }   
+   } 
+  }
+  var $ulp = $("<ul class='dropdown-menu'></ul>");
+  var $li =  $("<li class='dropdown-submenu'></li>");
+  var $ulc = $("<ul class='dropdown-menu'></ul>");
+  for (bin in data.shapeMap) {
+    for (process in data.shapeMap[bin]) {
+      if (process === 'data_obs') {
+	if (data_observ[data.shapeMap[bin][process][0]] === undefined) {
+          data_observ[data.shapeMap[bin][process][0]] = [];
+          data_observ[data.shapeMap[bin][process][0]].push(data.shapeMap[bin][process][1]);
+          $ulc.append("<li><a href='#' tabindex='-1'>" + data.shapeMap[bin][process][1] + "</a></li>"); 
+          $li.append("<a href='#' tabindex='-1'>" + data.shapeMap[bin][process][0] + "</a>");
+          $li.append($ulc);
+          $ulp.append($li);
+          $('li .dropdown-submenu#top').append($ulp);
+	  } else {
+              data_observ[data.shapeMap[bin][process][0]].push(data.shapeMap[bin][process][1]);       
+	      $ulc.append(("<li><a href='#' tabindex='-1'>" + data.shapeMap[bin][process][1] + "</a></li>"));
+	  }
+	}
+      }
     }
-    console.log("parse_datacard >");
+ }
+function checkIfDigit(val) {
+ if (jQuery.isNumeric(val)) {
+   if (!jQuery.isEmptyObject(massValue))
+    for (masses in massValue) {
+       massValue[masses] = val;
+    }
+    reloadDropDown();
+    return true;
+  } else 
+    alert("Value must be Numeric, try again");
+    return false;
 }
-
 /*
    Function: sort_obj_keys
 
@@ -511,7 +511,6 @@ function sort_obj_keys(obj){
    Creates a handsontable with needed functionality (searching, grouping, sorting and menus)
 */
 function generate_datacard() {
-    console.log("generate_datacard<"); 
     var tableData = [];
     var tableWidths = [];
     var columns = [];
@@ -593,7 +592,6 @@ function generate_datacard() {
     change_on_events_proc(true);
     change_on_events_nuisances(true);
     add_search_to_table(tableData);
-    console.log("generate_datacard >");
 }
 
 /*
@@ -601,19 +599,18 @@ function generate_datacard() {
    Dynamically changes the color of all process cells. 
 */
 var processRenderer = function (instance, td, row, col, prop, value, cellProperties) {
-    console.log("processRender <");
     Handsontable.renderers.TextRenderer.apply(this, arguments);
     $(td).css({
         background: colorsToShow[col]
     });
 };
 
+
 /*
    Function: processRenderer
    Dynamically changes the color of all process cells. 
 */
 var descriptionRenderer = function (instance, td, row, col, prop, value, cellProperties) {
-    console.log("descriptionRender <");
     var escaped = Handsontable.helper.stringify(value);
     escaped = strip_tags(escaped, '<em><b><a>'); 
     td.innerHTML = escaped;
@@ -625,7 +622,6 @@ var descriptionRenderer = function (instance, td, row, col, prop, value, cellPro
    Adds buttons to shape cells. 
 */
 var cellButtonRenderer = function (instance, td, row, col, prop, value, cellProperties) {
-    console.log("cellButtonRender <");
     if((value+"").indexOf("<button") >= 0) {
           td.innerHTML = Handsontable.helper.stringify((value+"").insert(value.indexOf('>'), ' style="width:'+$(td).width()+'px"'));
           add_cell_dialog_event($(td).find('button:first'));
@@ -645,32 +641,122 @@ var cellButtonRenderer = function (instance, td, row, col, prop, value, cellProp
 */
 
 function add_cell_dialog_event(button) {
-   console.log("add_cell_dialog_event(button)<");
     button.off();
     button.on("click", function(e) {
         build_one_histogram(button);
         // build_cell_dialog(button);
         e.stopPropagation();
     });
-   console.log("add_cell_dialog_event(button)<");
 }
 
+var rootNameGlobal;
 var Root = {
   callback : function(rootName, fileObj) {
+    rootNameGlobal = rootName;
     this[rootName].parsedRootFileObj = fileObj;
-    if (fileObj.fKeys[0]["className"] == "TDirectoryFile" || fileObj.fKeys[0]["className"] == "TDirectory") { 
-      readRootContent(this[rootName].parsedRootFileObj, pathToShape.bin, function(bin, cycle, dir_id) {
-        gFile.ReadDirectory(bin, cycle, function(directory) {
-	  JSROOTPainter.addDirectoryKeys(directory.fKeys, dir_id);
+    this.readNewBin(rootName, fileObj);
+  },
+  displayListOfKeys : function(rootName, keys) {
+    if (!this[rootName].hasOwnProperty("keyTree")) {
+       JSROOTPainter.displayListOfKeys(keys);
+       this[rootName].keyTree = key_tree;
+    }
+  },
+  readNewBin : function(rootName) {
+    this.checkIfRootChanged(rootName);
+    if (this[rootName].parsedRootFileObj.fKeys[0]["className"] == "TDirectoryFile" || this[rootName].parsedRootFileObj.fKeys[0]["className"] == "TDirectory") {
+      getID(this[rootName].parsedRootFileObj, pathToShape.bin, function(bin, cycle, dir_id) {
+        gFile.ReadDirectory(bin, cycle, function(directory) { // callback User from TDirectory
+	  Root[rootName][bin].binObj = directory;
+	  Root[rootName][bin].id = dir_id;
+	  Root[rootName][bin].cycle = cycle;
+	  Root.readNewPath(rootName, bin);
 	});
       });
+    } else if (this[rootName].parsedRootFileObj.fKeys[0]["className"] == "RooWorkspace") {
+        bootstrapDialogDynamic("Attention", "RooWorkSpace not supported");
     } else {
-        readHistograms();
+        this.readNewPath(rootName);
     }
-  } 
+  },
+  readNewPath : function(rootName, bin) {
+    if (this[rootName].parsedRootFileObj.fKeys[0]["className"] == "TDirectoryFile" || this[rootName].parsedRootFileObj.fKeys[0]["className"] == "TDirectory") {
+      var keySet = this.readThreeKeys(this[rootName][bin].binObj);
+      JSROOTPainter.addDirectoryKeys(keySet, this[rootName][bin].id, function() {
+	gFile.ReadThreeObject(pathToShape.buildPath(), '_' + pathToShape.nuicances, 1);
+      });
+    } else if (this[rootName].parsedRootFileObj.fKeys[0]["className"] == "RooWorkspace") {
+        bootstrapDialogDynamic("Attention", "RooWorkSpace not supported");
+    } else {
+        this.checkIfRootChanged(rootName);
+        gFile.ReadThreeObject(pathToShape.buildPath(), '_' + pathToShape.nuicances, 1);
+    }
+  },
+  readThreeKeys : function(directory) {
+    var keySet = [];
+    var mass;
+    if (typeof massValue[pathToShape.process] == 'undefined') {
+      mass = '';
+    } else {
+	mass = massValue[pathToShape.process];
+	mass = mass.toString();
+    }
+    var key = jQuery.grep(directory.fKeys, function(obj) {
+      switch(obj.name) {
+        case pathToShape.process + mass + '_' + pathToShape.nuicances + "Down":
+          keySet.push(obj);
+          break;
+        case pathToShape.process + mass:
+          keySet.push(obj);
+          break;
+	case pathToShape.process + mass + '_' + pathToShape.nuicances + "Up":
+          keySet.push(obj);
+          break;
+        default:
+           if (keySet.length === 3) {return;}
+           break;
+       }
+     });
+   if (keySet.length < 3) {
+      bootstrapDialogDynamic("Error", "Histogram not found, check $MASS parameter value");
+      return;
+   }
+   return keySet;  
+   },
+   checkIfRootChanged: function(rootName) {
+     if (gFile.fURL != this[rootName].parsedRootFileObj.fURL) {
+        rootNameGlobal = rootName;
+        gFile = this[rootName].parsedRootFileObj;
+	key_tree = this[rootName].keyTree;
+    }
+   },
+   showHistogram : function(title, histNr) {
+    var binProc = title;
+    var histNr = histNr;
+    var $hist = $("#histogram" + histNr).clone(true);
+    var width;
+    var dialog = new BootstrapDialog({
+        title: "bin: ".fontcolor("black") + pathToShape.bin + " process: ".fontcolor("black") + pathToShape.process + " nuisances: ".fontcolor("black") + pathToShape.nuicances,
+        message: function(dialog) {
+                if (Root[rootNameGlobal].histo[title] === undefined) {
+                    width = +$("#histogram"+histNr+" svg").attr("width");
+                    Root[rootNameGlobal].histo[title] = $("#histogram"+histNr).show().append(html);
+		    Root[rootNameGlobal].histo[title].width = width;
+                    return Root[rootNameGlobal].histo[title];
+                } else if (histNr === undefined) {
+		    return Root[rootNameGlobal].histo[title];
+		}
+	}
+    });
+    dialog.realize();
+    dialog.getModalDialog().css('width', Root[rootNameGlobal].histo[title].width + 'px');
+    dialog.open();
+   }
 };
 
-var pathToShape = { bin       : "",
+var pathToShape = { 
+                    rootName  : "",
+                    bin       : "",
                     process   : "",
 		    nuicances : "",
 		    path      : "",
@@ -682,7 +768,7 @@ var pathToShape = { bin       : "",
 };
 
 /*
-   Function: build_cell_dialog
+   Function: build_one_histogram
    
    Shows histogram plot inside Bootstrap Dialog.
    
@@ -691,12 +777,7 @@ var pathToShape = { bin       : "",
       button - jQuery button object.
    
 */
-var test = {};
 function build_one_histogram(button) {
-    /*
-     * Make it more Object oriented
-     * Save decoded .root file
-     */
     var binProc = button.attr('id').split(":");
     pathToShape.bin = binProc[0];
     pathToShape.process = binProc[1];
@@ -704,90 +785,31 @@ function build_one_histogram(button) {
     var rootFileName = datacardShapeMap[binProc[0]][binProc[1]][0];  
     try {
       if (!Root.hasOwnProperty(rootFileName)) {
-        alert("Root");
         Root[rootFileName] = {};
+	Root[rootFileName].histo = {};
         Root[rootFileName][binProc[0]] = {};
-        Root[rootFileName][binProc[0]].path = [];
 	Root[rootFileName].parsedRootFileObj = {};
+        Root[rootFileName][binProc[0]].path = [];
         Root[rootFileName][binProc[0]].path.push(pathToShape.buildPath());
         readRootFiles(rootFileName);
       } else if (!Root[rootFileName].hasOwnProperty(pathToShape.bin)) {
-          alert("Bin");
           Root[rootFileName][binProc[0]] = {};
           Root[rootFileName][binProc[0]].path = [];
           Root[rootFileName][binProc[0]].path.push(pathToShape.buildPath());
-	  // Supose to be readRootContent
+	  Root.readNewBin(rootFileName);
       } else if (Root[rootFileName][binProc[0]].path.indexOf(pathToShape.buildPath()) === -1) {
-	  alert("path");
       	  Root[rootFileName][binProc[0]].path.push(pathToShape.buildPath());
-	  
+	  Root.readNewPath(rootFileName, pathToShape.bin);
       } else if (Root.hasOwnProperty(rootFileName) && Root[rootFileName].hasOwnProperty(binProc[0])
 	&& (Root[rootFileName][binProc[0]].path.indexOf(pathToShape.buildPath()) != -1)) {
-	  alert("Histo exists");
+	  Root.showHistogram(pathToShape.buildPath());
       } else {
 	  throw "Exception: main.js > build_one_histogram";
       }
     } catch(err) {
         alert(err);
     }
-    // var histNr = getHistogramNumber(binProc);
-    // $("#histogram"+histNr).show().append(html);
 }
-
-function build_cell_dialog(button) {
-    console.log("build_cell_dialog<");
-    var binProc = button.attr('id').split(":");
-    var histNr = getHistogramNumber(binProc);
-    console.log("----------------HistNumber--------------------");
-    console.log(histNr);
-    var $hist = $("#histogram"+histNr).clone(true);
-    var width;
-    
-    var dialog = new BootstrapDialog({ 
-        title: function(){
-            if ($hist.children().length === 0 )
-                if (histograms[binProc] === undefined)
-                    return "Root file not loaded";
-                else
-                    return "Bin: "+binProc[0]+", proccess: "+binProc[1]+", nuissance: "+binProc[2]+" histograms";
-            else
-                return "Bin: "+binProc[0]+", proccess: "+binProc[1]+", nuissance: "+binProc[2]+" histograms";
-        },
-        message: function(dialog) {
-            if ($hist.children().length === 0 ){
-                if (histograms[binProc] === undefined){
-                    width = 600;
-                    return "Not yet loaded, close it and try again.\nRoot files with \"Combination of\", \"ProcessID\" and \"RooWorkspace\" are not supported";
-                }else{
-                    width = histogramsWidth[binProc];
-                    return histograms[binProc];
-                }
-            }else{
-                if (histograms[binProc] === undefined){
-                    histogramsWidth[binProc] = +$("#histogram"+histNr+" svg").attr("width");
-                    width = histogramsWidth[binProc];
-                    var html = "<b>Down</b>:<span style='color:red;'>red</span>, ";
-                    html+="<b>Nominal</b>: <span style='color:blue;'>blue</span>, ";
-                    html+="<b>Up</b>: <span style='color:green;'>green</span>.";
-		    //Here shows the Hist 
-                    histograms[binProc] = $("#histogram"+histNr).show().append(html);
-		    console.log("----------------Histograms-------------");
-		    console.dir(histograms);
-                    return histograms[binProc];
-                }
-                else {
-                    width = histogramsWidth[binProc];
-                    return histograms[binProc];
-                }
-            }
-        }
-    });
-    dialog.realize();
-    dialog.getModalDialog().css('width', width+'px');
-    dialog.open();
-    console.log("build_cell_dialog >"); 
-}
-
 /*
    Function: count_headers_width
    Counts all nuisances name width in the table.
