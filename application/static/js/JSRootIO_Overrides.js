@@ -1,7 +1,6 @@
 // Overrides: JSRootD3Painter.js
 //No GUI needed
 JSROOTPainter.displayListOfKeys = function(keys) {
-      console.log("<<<JSROOTPainter.displayListOfKeys>>>");
       delete key_tree;
       key_tree = new dTree('key_tree');
       key_tree.config.useCookies = false;
@@ -26,8 +25,7 @@ JSROOTPainter.displayListOfKeys = function(keys) {
 };
 
 //No GUI needed
-JSROOTPainter.addDirectoryKeys = function(keys, dir_id) {
-      console.log("<<<JSROOTPainter.addDirectoryKeys>>>");
+JSROOTPainter.addDirectoryKeys = function(keys, dir_id, callback) {
       var tree_link = '';
       var k = key_tree.aNodes.length;
       var dir_name = key_tree.aNodes[dir_id]['title'];
@@ -72,13 +70,12 @@ JSROOTPainter.addDirectoryKeys = function(keys, dir_id) {
          k++;
          }
       }
-      readHistograms();
+      callback();
    };
    
 // Overrides: dtree.js
 //No GUI needed
 dTree.prototype.add = function(id, pid, name, url, title, target) {
-   console.log("<<<dTree.prototype.add>>>");
    this.aNodes[this.aNodes.length] = new Node(id, pid, name, url, title, target);
 };
 
@@ -87,7 +84,6 @@ dTree.prototype.add = function(id, pid, name, url, title, target) {
  * 
  */
 JSROOTPainter.drawThreeObject = function(obj, idx) {
-      console.log("<<<JSROOTPainter.drawThreeObject>>>");
       var i, svg = null;
       function draw(init) {
 
@@ -153,10 +149,7 @@ function initStackObject(obj_name){
 //               Down/ Nominal /Up
 var stackColors = [632, 600, 416];
 
-// WTF he is Doing here ?! 
 JSROOTIO.RootFile.prototype.ReadThreeObject = function(obj_name, nuissance, cycle, node_id) {
-      console.log("<<<JSROOTIO.RootFile.prototype.ReadThreeObject>>>");
-      console.log("obj_name " + obj_name + "nuissance " + nuissance + "cycle " + "node_id " + node_id);
       // read any object from a root file
       var key = this.GetKey(obj_name+"Down", cycle);
       var key2 = this.GetKey(obj_name.replace(nuissance,''), cycle);
@@ -194,7 +187,7 @@ JSROOTIO.RootFile.prototype.ReadThreeObject = function(obj_name, nuissance, cycl
                   stack['fHists'].push(obj);
                   if (stack['fHists'].length == 3){
                      displayThreeObject(stack, cycle, obj_index);
-                     obj_list.push(obj_name+cycle);
+                     obj_list.push(obj_name + cycle);
                      obj_index++;
                   }
                   colorIndex++;
@@ -239,7 +232,6 @@ JSROOTPainter.drawTitle = function(vis, histo, pad) {
 
 //Always draw the same way-> option.Error = false; 
 JSROOTPainter.decodeOptions = function(opt, histo, pad) {
-      console.log("<<<JSROOTPainter.decodeOptions>>>");
       /* decode string 'opt' and fill the option structure */
       var hdim = 1; // histo['fDimension'];
       if (histo['_typename'].match(/\bJSROOTIO.TH2/)) hdim = 2;
@@ -536,7 +528,6 @@ JSROOTPainter.decodeOptions = function(opt, histo, pad) {
    };
 
 JSROOTPainter.createCanvas = function(element, idx) {
-      console.log("<<<Create canvas>>>");
       var w = element.width(), h = w * 0.6666666;
       var render_to = '#histogram' + idx;
       d3.select(render_to).style("background-color", 'white');
