@@ -1713,7 +1713,6 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
                   } else {
 		    alert("No callback function defined");  
 		  }
-                  //displayDirectory(_dir, cycle, dir_id);
                   delete buffer;
                   buffer = null;
                };
@@ -2170,7 +2169,6 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
       
       JSROOTIO.RootFile.prototype.GetKey = function(keyname, cycle) {
 	 console.log("***JSROOTIO.RootFile.prototype.GetKey");
-         // retrieve a key by its name and cycle in the list of keys
          var i, j;
          for (i=0; i<this.fKeys.length; ++i) {
             if (this.fKeys[i]['name'] == keyname && this.fKeys[i]['cycle'] == cycle)
@@ -2267,8 +2265,9 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
          console.log("***JSROOTIO.RootFile.prototype.ReadStreamerInfo");
          if (this.fSeekInfo == 0 || this.fNbytesInfo == 0) return;
          this.Seek(this.fSeekInfo, this.ERelativeTo.kBeg);
-	 
+	 var rootName;
          var callback1 = function(file, buffer) {
+	    rootName = file.fURL.replace('datacards/files/', '');
 	    console.log("callback1 of ReadStreamerInfo");
             var key = file.ReadKey(buffer, 0);
             this.fTagOffset = key.keyLen;
@@ -2287,13 +2286,11 @@ var kBase = 0, kOffsetL = 20, kOffsetP = 40, kCounter = 6, kCharStar = 7,
                   if (file.fKeys[i]['className'] == 'TFormula') {
                      file.ReadObject(file.fKeys[i]['name'], file.fKeys[i]['cycle']);
                   }
-               } 
-	       var rootName = file.fURL.replace('datacards/files/', '');
+               }
 	       Root.callback(rootName, file);
             };
             file.ReadObjBuffer(key, callback2);
-	    // Here Keys are the same as in ReadKeys.
-            displayListOfKeys(file.fKeys);
+            Root.displayListOfKeys(rootName, file.fKeys);
             delete buffer;
             buffer = null;
          };
