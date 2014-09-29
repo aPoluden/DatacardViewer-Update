@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #Datacard Viewer
 
 
@@ -57,9 +56,3 @@ If it doesn't work, go to [run.py](run.py) and configure it manually.
 
 + [Documentation](DOCUMENTATION.md)
 + [Tasks](TASKS.md)
-=======
-DatacardViewer-Update
-=====================
-
-Update existing project of DatacardViewer
->>>>>>> b849e372c1115bf6ce14b9c1bce3bd5cb7593dcf
