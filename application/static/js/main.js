@@ -456,7 +456,7 @@ function parse_datacard(data) {
 	if (data_observ[data.shapeMap[bin][process][0]] === undefined) {
           data_observ[data.shapeMap[bin][process][0]] = [];
           data_observ[data.shapeMap[bin][process][0]].push(data.shapeMap[bin][process][1]);
-          $ulc.append("<li><a href='#' tabindex='-1'>" + data.shapeMap[bin][process][1] + "</a></li>"); 
+          $ulc.append("<li id=" + data.shapeMap[bin][process][1] + "><a href='#' tabindex='-1'>" + data.shapeMap[bin][process][1] +"</a></li>"); 
           $li.append("<a href='#' tabindex='-1'>" + data.shapeMap[bin][process][0] + "</a>");
           $li.append($ulc);
           $ulp.append($li);

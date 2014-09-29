@@ -58,7 +58,7 @@ def delete_datacards():
           try: 
            os.remove(app.config['UPLOAD_FOLDER'] + value1[0])
           except (OSError, IOError):
-	   print("File not found")
+	    print("File was removed")
       os.remove(app.config['UPLOAD_FOLDER'] + datacard)
   except:
     pass

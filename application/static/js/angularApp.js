@@ -153,14 +153,18 @@
                            });
 		    }
 		  }
-	        };//remove_datacards
+	        };
 	       
 	       $scope.remove_datacard_table = function() {
 	         angular.element('.handsontable').empty();
 	         angular.element('#filename').empty();
 		 reloadDropDown();
-	       }//remove_datacard_table
+	       };
 	       
+	       $scope.data_observ = function() {
+	         alert();
+		 reloadDropDown();
+	       }
             }//main func
         ]);
 }())
