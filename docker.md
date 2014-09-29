@@ -26,7 +26,9 @@ There build image specially for Datacardviewer name of the image apoluden/dataca
   link to Datacardviewer ip_of_your_pc:docker_choosed_port
 
 ## Build image from Dockerfile
+
 There aviability to create Docker image from file with instructions. Dockerfile in this repo + [Dockerfile](Dockerfile)
+
 1. Create Dockerfile 
    $ touch Dockerfile
 2. Copy 
