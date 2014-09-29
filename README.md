@@ -56,3 +56,6 @@ If it doesn't work, go to [run.py](run.py) and configure it manually.
 
 + [Documentation](DOCUMENTATION.md)
 + [Tasks](TASKS.md)
+
+##Docker
++ [Docker](docker.md)
