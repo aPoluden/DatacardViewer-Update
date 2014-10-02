@@ -31,20 +31,19 @@ link to Datacardviewer ip_of_your_pc:docker_choosed_port
 
 It's possible to create Docker image from file with instructions. Dockerfile in this report: [Dockerfile](Dockerfile)
 
-1. Create Dockerfile
+*Create Dockerfile
 ```
 $ touch Dockerfile
 ```
-2. Copy
+*Copy
 Copy/Paste from [Dockerfile](Dockerfile) to created Dockerfile
 3. Build
 ```
 $ sudo docker build -t="user_name/name_of_image:v1" <where to locate image>
 ```
 p.s. "v1" is tag. To locate image in working directory replace <where to locate image> with .
-4. Run image
-
-   To run image follow instructions from Pull image second point.
+*Run image
+To run image follow instructions from Pull image second point.
 
 ## Firewall notes
 
