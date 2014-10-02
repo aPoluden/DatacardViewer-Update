@@ -15,14 +15,20 @@ Follow the instructions depending to your distribution and jump to next step
 Image name specially for Datacardviewer: apoluden/datacardviewer:v1
 Image and also Dockerfile can be find here: [Docker image](https://registry.hub.docker.com/u/apoluden/datacardviewer/)
 
-1. Pull image from Docker Hub:
+* Pull image from Docker Hub:
+```
 $sudo docker pull apoluden/datacardviewer:v1
-2. Create container for pulled image:
-$sudo docker run -d -P apoluden/datacardviewer:v1 python run.py 
-3. Check what port Docker selected to bind your local host with docker container
+```
+* Create container for pulled image:
+```
+$sudo docker run -d -P apoluden/datacardviewer:v1 python run.py
+```
+* Check what port Docker selected to bind your local host with docker container
+```
 $sudo docker ps -l
+```
 p.s 0.0.0.0:49156->5000/tcp in my case docker choose port 49156
-4. Run Datacardviewer in preferred Browser
+* Run Datacardviewer in preferred Browser
 link to Datacardviewer ip_of_your_pc:docker_choosed_port
 
 [Docker links for detailed info.](http://docs.docker.com/userguide/)
@@ -52,7 +58,7 @@ To run image follow instructions from Pull image second point.
 In some cases to access container remotely you need preconfigure iptables or ufw, depending on your distribution.
 Usefull link http://stackoverflow.com/questions/21970337/remote-access-to-webserver-in-docker-container/21980893#21980893
 
-## Useful links 
+## Usefull links 
 
 http://goo.gl/rwPKws
 http://stackoverflow.com/questions/21970337/remote-access-to-webserver-in-docker-container/21980893#21980893
