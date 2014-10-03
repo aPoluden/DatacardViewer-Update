@@ -5,9 +5,10 @@ That means that ROOT APP opens FastCGI port. This Port listens to HTTP request a
 Inside ROOT APP memory will be created a file which will be filled by histograms.
 In the same way can be readed file from current memory.
 [THttpServer documentation](http://root.cern.ch/root/htmldocmake guides/HttpServer/HttpServer.html)
-Minimal example:
 
-+ Enter ROOT
+**Minimal example:**
+
+Enter ROOT
 ```
 TFile::Open("file.root");
 THttpServer* serv = new THttpServer("http:8080/none?rw");
