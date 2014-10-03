@@ -52,7 +52,7 @@ Therefore do like:
 ### Other problems using THttpServer
 
 If it's not available to configure THttpServer check for ROOT latest releases. Or 
-problem can be caused by old C++ gcc or g++ compilers versions which don't support some features. You need to update them and enable in g++ compiler c++11 fetures.
+problem can be caused by old C++ gcc or g++ compilers versions which don't support some features. You need to update them and enable in g++ compiler c++11 features.
 [How to update C++ compiler](http://google.com)
 [How to enable c++11 features](http://stackoverflow.com/questions/17378969/how-to-change-gcc-compiler-to-c11-on-ubuntu)
 
