@@ -15,15 +15,15 @@ Build image name for Datacardviewer: **apoluden/datacardviewer-update:latest**
 Image and also Dockerfile can be find here: [Docker image](https://registry.hub.docker.com/u/apoluden/datacardviewer/)
 
 * Pull image from Docker Hub:
-```
+``` sh
 $sudo docker pull apoluden/datacardviewer-update:latest
 ```
 * Create container for pulled image:
-```
+``` sh
 $sudo docker run -d -P apoluden/datacardviewer-update:latest python run.py
 ```
 * Check what port Docker selected to bind your local host with docker container
-```
+``` sh 
 $sudo docker ps -l
 ```
 p.s 0.0.0.0:**49156**->5000/tcp in my case docker choose port **49156**
@@ -37,14 +37,14 @@ link to Datacardviewer **ip_of_your_pc:docker_choosed_port**
 It's possible to create Docker image from file with instructions. Dockerfile used in this project: [Dockerfile](Dockerfile)
 
 * Create Dockerfile
-```
+``` sh
 $ touch Dockerfile
 ```
 * Copy instructions
 
 Copy/Paste from [Dockerfile](Dockerfile) to created Dockerfile
 * Build image
-```	
+``` sh
 $ sudo docker build -t="user_name/name_of_image:latest" **<where to locate image>** 
 ```
 p.s. "latest" is tag. To locate image in working directory replace <where to locate image> with .

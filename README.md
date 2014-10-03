@@ -59,6 +59,23 @@ If it doesn't work, go to [run.py](run.py) and configure it manually.
 #Run DatacardViewer with Docker
 + [Docker](docker.md)
 
-##RooWorkspace
-+ [Future developing](future_develope.md)
+#RooWorkspace
 + [RooWorkspace](RooWorkspace.md)
+
+#Future developing
+
+Here locates all information for future developers
+
++ [Tasks](future_develope.md)
+
+Datacard tutorial: https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideCMSDataAnalysisSchool2014HiggsCombPropertiesExercise
+
+.root files can be pulled from here: https://svnweb.cern.ch/cern/wsvn/cmshcg/trunk/summer2013/couplings/ 
+OR here: afs/cern.ch/user/g/gpetrucc/public/CMSDAS-2014-CERN-cards.tar.gz (need to configure *afs* localy)
+
+**afs config**
+``` sh
+etc/rb5-config
+$ kinit user@CERN.CH     # get kerberos ticket
+$ aklog                  # login to AFS cell
+```

@@ -10,7 +10,7 @@ In the same way can be readed file from current memory.
 
 1. Enter ROOT
 2. cp
-```
+``` cpp
 TFile::Open("file.root");
 THttpServer* serv = new THttpServer("http:8080/none?rw");
 ```
@@ -20,7 +20,7 @@ After that *File.root* containing can be viewed in browser
 http://localhost:8080
 ``` 
 **Example With FastCGI :**
-```
+``` cpp
 TFile::Open("file.root");
 THttpServer* serv = new THttpServer("fastcgi:9000/none?rw");
 ```
@@ -32,17 +32,17 @@ Also there availability to register object for the server and do not use File.ro
 
 THttpServer is present in both ROOT v5 and v6. Problem, that it is not compiled by default.
 If your installation does not have THttpServer, you need to compile ROOT yourself, doing:
-```
+``` sh
 ./configure --enable-http
 ```
 And than:
-```
+``` sh
 [shell]make.
 ```
 Recommend to use version from repository while significant part of new code was submitted.
 
 Therefore do like:
-```
+``` sh
 [shell] git clone http://root.cern.ch/git/root.git rootgit
 [shell] cd rootgit
 [shell] ./configure --enable-http
