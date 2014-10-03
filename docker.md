@@ -44,7 +44,7 @@ $ touch Dockerfile
 
 Copy/Paste from [Dockerfile](Dockerfile) to created Dockerfile
 * Build image
-```
+```	
 $ sudo docker build -t="user_name/name_of_image:v2" **<where to locate image>** 
 ```
 p.s. "v2" is tag. To locate image in working directory replace <where to locate image> with .
