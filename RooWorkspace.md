@@ -8,28 +8,28 @@ In the same way can be readed file from current memory.
 
 **Minimal example:**
 
-Enter ROOT
+1. Enter ROOT
+2. cp
 ```
 TFile::Open("file.root");
 THttpServer* serv = new THttpServer("http:8080/none?rw");
 ```
 
-After that File.root containing can be viewed in browser
+After that *File.root* containing can be viewed in browser
 ```
-http://localhost:8080.
+http://localhost:8080
 ``` 
-To use FastCGI :
+**Example With FastCGI :**
 ```
+TFile::Open("file.root");
 THttpServer* serv = new THttpServer("fastcgi:9000/none?rw");
 ```
 After that proxy need to be configured on Your's WEB server with appropriate port. 
 
-
 Also there availability to register object for the server and do not use File.root > serv->Register("folder", obj);
 
 ##ThttpServer configuration
-THttpServer is present in both ROOT v5 and v6.
-Problem, that it is not compiled by default.
+THttpServer is present in both ROOT v5 and v6. Problem, that it is not compiled by default.
 If your installation does not have THttpServer, you need to compile ROOT yourself, doing:
 ```
 ./configure --enable-http
@@ -48,8 +48,12 @@ Therefore do like:
 [shell] make -j8
 [shell] source bin/thisroot.sh
 ```
-# THttpServer and RooFit
+### Other problems using THttpServer
 
+If you it's not available to configure THttpServer. Check for ROOT latest releases.Or 
+problem can be caused by old C++ gcc or g++ compilers not support some features. You need to update them. Enable in g++ compiler c++11 fetures link: http://stackoverflow.com/questions/17378969/how-to-change-gcc-compiler-to-c11-on-ubuntu
+
+# THttpServer and RooFit
 As it is now, THttpServer could not be used with RooFit.
 Seems to be, not all RooFit classes are supported in TBufferJSON, used to convert object into JSON format.
 
