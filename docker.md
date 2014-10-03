@@ -11,16 +11,16 @@ Follow the instructions depending to your distribution and jump to next step
 
 ## Pull image from Docker Hub and run it inside Docker container
 
-Build image name for Datacardviewer: **apoluden/datacardviewer:v1**
+Build image name for Datacardviewer: **apoluden/datacardviewer:v2**
 Image and also Dockerfile can be find here: [Docker image](https://registry.hub.docker.com/u/apoluden/datacardviewer/)
 
 * Pull image from Docker Hub:
 ```
-$sudo docker pull apoluden/datacardviewer:v1
+$sudo docker pull apoluden/datacardviewer:v2
 ```
 * Create container for pulled image:
 ```
-$sudo docker run -d -P apoluden/datacardviewer:v1 python run.py
+$sudo docker run -d -P apoluden/datacardviewer:v2 python run.py
 ```
 * Check what port Docker selected to bind your local host with docker container
 ```
@@ -45,9 +45,9 @@ $ touch Dockerfile
 Copy/Paste from [Dockerfile](Dockerfile) to created Dockerfile
 * Build image
 ```
-$ sudo docker build -t="user_name/name_of_image:v1" **<where to locate image>** 
+$ sudo docker build -t="user_name/name_of_image:v2" **<where to locate image>** 
 ```
-p.s. "v1" is tag. To locate image in working directory replace <where to locate image> with .
+p.s. "v2" is tag. To locate image in working directory replace <where to locate image> with .
 * Run image
 
 To run image follow instructions from Pull image second point.
