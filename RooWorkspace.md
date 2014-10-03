@@ -1,7 +1,7 @@
-#THttpServer 
+# THttpServer 
 
-**ThttpServer** – let use standart WEB servers such as Apache through FastCGI proxy.
-That means that ROOT APP opens FastCGI port. This Port listens to HTTP request and answer them (example tutorials/http/httpserver.C).
+**ThttpServer** – uses standart WEB servers such as Apache through FastCGI proxy.
+That means that ROOT APP opens FastCGI port. This port listens to HTTP requests and answer them (example tutorials/http/httpserver.C).
 Inside ROOT APP memory will be created a file which will be filled by histograms.
 In the same way can be readed file from current memory.
 [THttpServer documentation](http://root.cern.ch/root/htmldocmake guides/HttpServer/HttpServer.html)
@@ -28,7 +28,8 @@ After that proxy need to be configured on Your's WEB server with appropriate por
 
 Also there availability to register object for the server and do not use File.root > serv->Register("folder", obj);
 
-##ThttpServer configuration
+## THttpServer configuration
+
 THttpServer is present in both ROOT v5 and v6. Problem, that it is not compiled by default.
 If your installation does not have THttpServer, you need to compile ROOT yourself, doing:
 ```
@@ -50,8 +51,10 @@ Therefore do like:
 ```
 ### Other problems using THttpServer
 
-If you it's not available to configure THttpServer. Check for ROOT latest releases.Or 
-problem can be caused by old C++ gcc or g++ compilers not support some features. You need to update them. Enable in g++ compiler c++11 fetures link: http://stackoverflow.com/questions/17378969/how-to-change-gcc-compiler-to-c11-on-ubuntu
+If it's not available to configure THttpServer check for ROOT latest releases. Or 
+problem can be caused by old C++ gcc or g++ compilers versions which don't support some features. You need to update them and enable in g++ compiler c++11 fetures.
+[How to update C++ compiler](http://google.com)
+[How to enable c++11 features](http://stackoverflow.com/questions/17378969/how-to-change-gcc-compiler-to-c11-on-ubuntu)
 
 # THttpServer and RooFit
 As it is now, THttpServer could not be used with RooFit.
